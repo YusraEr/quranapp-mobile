@@ -40,5 +40,5 @@ public class SearchViewModel extends AndroidViewModel {
     // --- METODE BARU UNTUK DIPANGGIL DARI ACTIVITY ---
     public void searchCompleted() {
         _isLoading.setValue(false);
-    }
+    }   
 }

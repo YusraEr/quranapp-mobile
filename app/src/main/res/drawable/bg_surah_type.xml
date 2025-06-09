@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/colorSecondaryContainerLight" />
+    <solid android:color="?attr/colorSecondaryContainer" />
     <corners android:radius="4dp" />
     <stroke
         android:width="0.5dp"
-        android:color="@color/colorSecondaryLight" />
+        android:color="?attr/colorSecondary" />
 </shape>
 
