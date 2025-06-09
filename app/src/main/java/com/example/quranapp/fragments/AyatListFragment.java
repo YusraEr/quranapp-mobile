@@ -21,7 +21,6 @@ import com.example.quranapp.R;
 import com.example.quranapp.adapter.AyatAdapter;
 import com.example.quranapp.data.remote.model.Ayat;
 import com.example.quranapp.data.remote.model.Tafsir;
-import com.example.quranapp.utils.NetworkUtils;
 import com.example.quranapp.utils.SettingsUtils;
 import com.example.quranapp.viewmodel.AyatViewModel;
 
@@ -35,20 +34,25 @@ public class AyatListFragment extends Fragment {
     private static final String ARG_SURAH_NAME_LATIN = "arg_surah_name_latin";
 
     private int surahNumber;
-    private String surahNameLatin;
-
     private AyatViewModel ayatViewModel;
     private RecyclerView recyclerViewAyats;
     private AyatAdapter ayatAdapter;
+
+    private MediaPlayer mediaPlayer;
+    private int currentlyPlayingAyatNomor = -1;
+    private boolean isAudioPlaying = false;
+    private boolean isManuallyStopped = true;
+    private List<Ayat> currentAyatList = new ArrayList<>();
+
+    // Variabel UI
     private ProgressBar progressBarAyat;
     private TextView textViewErrorAyat;
     private Button buttonRefreshAyat;
     private TextView textViewSurahInfo;
 
-    private MediaPlayer mediaPlayer;
 
     public AyatListFragment() {
-        // Required empty public constructor
+        // Diperlukan konstruktor kosong
     }
 
     public static AyatListFragment newInstance(int surahNumber, String surahNameLatin) {
@@ -65,22 +69,18 @@ public class AyatListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             surahNumber = getArguments().getInt(ARG_SURAH_NUMBER);
-            surahNameLatin = getArguments().getString(ARG_SURAH_NAME_LATIN);
         }
         ayatViewModel = new ViewModelProvider(requireActivity()).get(AyatViewModel.class);
-        mediaPlayer = new MediaPlayer();
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_ayat_list, container, false);
         recyclerViewAyats = view.findViewById(R.id.rv_ayats_fragment);
         progressBarAyat = view.findViewById(R.id.progressBarAyatFragment);
         textViewErrorAyat = view.findViewById(R.id.textViewErrorAyatFragment);
         buttonRefreshAyat = view.findViewById(R.id.buttonRefreshAyatFragment);
         textViewSurahInfo = view.findViewById(R.id.textViewSurahInfoDetail);
-
         setupRecyclerView();
         return view;
     }
@@ -90,96 +90,88 @@ public class AyatListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setupObservers();
         setupEventListeners();
-
         if (surahNumber > 0) {
-            if (ayatViewModel.getCurrentSurahNumber() != surahNumber || ayatViewModel.getAyats().getValue() == null) {
-                ayatViewModel.initialLoadAyats(surahNumber);
-            }
+            ayatViewModel.initialLoadAyats(surahNumber);
             ayatViewModel.loadTafsirForSurah(surahNumber);
-        } else {
-            textViewErrorAyat.setText(getString(R.string.error_surah_not_valid));
-            textViewErrorAyat.setVisibility(View.VISIBLE);
-            progressBarAyat.setVisibility(View.GONE);
-            buttonRefreshAyat.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        initializeMediaPlayer();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        releaseMediaPlayer();
+    }
+
+    private void initializeMediaPlayer() {
+        if (mediaPlayer == null) {
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setOnCompletionListener(mp -> {
+                if (!isManuallyStopped) {
+                    playNextAyat();
+                } else {
+                    stopAndResetAudioState();
+                }
+            });
+            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                if (getContext() != null) Toast.makeText(getContext(), "Gagal memutar audio.", Toast.LENGTH_SHORT).show();
+                stopAndResetAudioState();
+                return true;
+            });
+        }
+    }
+
+    private void releaseMediaPlayer() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        stopAndResetAudioState();
+    }
+
+    private void stopAndResetAudioState() {
+        isAudioPlaying = false;
+        isManuallyStopped = true;
+        currentlyPlayingAyatNomor = -1;
+        if (ayatAdapter != null) {
+            ayatAdapter.updatePlaybackState(-1, false, false);
         }
     }
 
     private void setupRecyclerView() {
-        // Listener untuk klik item ayat (untuk toggle tafsir)
+        // --- PERBAIKAN DI SINI: Deklarasikan listener sebelum digunakan ---
+
+        // 1. Deklarasikan listener untuk klik pada item (toggle tafsir)
         AyatAdapter.OnAyatClickListener ayatClickListener = (ayat, holder) -> {
             Log.d("AyatListFragment", "Ayat clicked: " + ayat.getNomorAyat());
-            // Toggle tafsir visibility with animation
             holder.toggleTafsirVisibility();
-
-            // Log tafsir status for debugging
-            boolean isVisible = holder.textViewTafsirAyatItem.getVisibility() == View.VISIBLE;
-            Log.d("AyatListFragment", "Tafsir visibility after toggle: " + (isVisible ? "VISIBLE" : "GONE"));
         };
 
-        // Listener untuk klik tombol putar audio per ayat
-        AyatAdapter.OnPlayAudioClickListener playAudioClickListener = (ayat, audioUrl) -> {
-            // PERUBAHAN UTAMA DI SINI:
-            // 1. Ambil preferensi qari dari SharedPreferences melalui SettingsUtils
-            String preferredReciterKey = SettingsUtils.getReciterPreference(requireContext());
+        // 2. Deklarasikan listener untuk klik pada tombol audio
+        AyatAdapter.OnPlayAudioClickListener playAudioClickListener = this::handlePlayAudioClick;
 
-            // 2. Dapatkan URL audio yang benar dari model Ayat berdasarkan preferensi
-            String correctAudioUrl = ayat.getAudioUrlForReciter(preferredReciterKey);
-
-            Log.d("AyatListFragment", "Play audio for ayat: " + ayat.getNomorAyat() +
-                    ". Reciter Key: " + preferredReciterKey +
-                    ". Final URL: " + correctAudioUrl);
-
-            // 3. Putar audio jika URL valid
-            if (correctAudioUrl != null && !correctAudioUrl.isEmpty()) {
-                playAudio(correctAudioUrl);
-            } else {
-                Toast.makeText(getContext(), "Audio tidak tersedia untuk qari ini.", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        // Inisialisasi adapter dengan kedua listener
+        // 3. Gunakan variabel listener yang sudah dibuat di konstruktor adapter
         ayatAdapter = new AyatAdapter(new ArrayList<>(), ayatClickListener, playAudioClickListener);
 
         recyclerViewAyats.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewAyats.setAdapter(ayatAdapter);
     }
 
-    // Metode playAudio dan metode siklus hidup lainnya (onCreate, onDestroy, dll) tetap sama
-    // ...
-    private void playAudio(String url) {
-        if (mediaPlayer == null) mediaPlayer = new MediaPlayer();
-        try {
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(url);
-            mediaPlayer.setOnPreparedListener(mp -> {
-                mp.start();
-                if (getContext() != null) Toast.makeText(getContext(), "Memutar audio...", Toast.LENGTH_SHORT).show();
-            });
-            mediaPlayer.setOnCompletionListener(mp -> {
-                if (getContext() != null) Toast.makeText(getContext(), "Audio selesai.", Toast.LENGTH_SHORT).show();
-                mp.reset();
-            });
-            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                if (getContext() != null) Toast.makeText(getContext(), "Gagal memutar audio.", Toast.LENGTH_SHORT).show();
-                Log.e("AyatListFragment", "MediaPlayer Error: what=" + what + ", extra=" + extra + " for URL: " + url);
-                mp.reset();
-                return true;
-            });
-            mediaPlayer.prepareAsync();
-        } catch (IOException | IllegalStateException | IllegalArgumentException e) {
-            Log.e("AyatListFragment", "Error playing audio for URL: " + url, e);
-            if (getContext() != null) Toast.makeText(getContext(), "Gagal memuat audio.", Toast.LENGTH_LONG).show();
-            if (mediaPlayer != null) mediaPlayer.reset();
-        }
-    }
-
     private void setupObservers() {
+        // ... (Implementasi observer tidak berubah dari versi sebelumnya)
         ayatViewModel.getIsLoadingAyat().observe(getViewLifecycleOwner(), isLoading -> {
-            if (isLoading != null) progressBarAyat.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-            if (isLoading != null && isLoading) {
+            if (isLoading != null && isLoading && ayatAdapter.getItemCount() == 0) {
+                progressBarAyat.setVisibility(View.VISIBLE);
+                recyclerViewAyats.setVisibility(View.GONE);
                 textViewErrorAyat.setVisibility(View.GONE);
                 buttonRefreshAyat.setVisibility(View.GONE);
-                recyclerViewAyats.setVisibility(View.GONE);
+            } else {
+                progressBarAyat.setVisibility(View.GONE);
             }
         });
 
@@ -189,31 +181,20 @@ public class AyatListFragment extends Fragment {
                 textViewErrorAyat.setVisibility(View.VISIBLE);
                 buttonRefreshAyat.setVisibility(View.VISIBLE);
                 recyclerViewAyats.setVisibility(View.GONE);
-                progressBarAyat.setVisibility(View.GONE);
             } else {
                 textViewErrorAyat.setVisibility(View.GONE);
+                buttonRefreshAyat.setVisibility(View.GONE);
             }
         });
 
         ayatViewModel.getAyats().observe(getViewLifecycleOwner(), ayats -> {
-            if (!isAdded() || getContext() == null) return;
-            Boolean isLoading = ayatViewModel.getIsLoadingAyat().getValue();
-            String errorMessage = ayatViewModel.getErrorMessageAyat().getValue();
-
             if (ayats != null && !ayats.isEmpty()) {
+                currentAyatList.clear();
+                currentAyatList.addAll(ayats);
                 ayatAdapter.updateAyats(ayats);
                 recyclerViewAyats.setVisibility(View.VISIBLE);
-                textViewErrorAyat.setVisibility(View.GONE);
-                buttonRefreshAyat.setVisibility(View.GONE);
-                progressBarAyat.setVisibility(View.GONE);
-            } else if (isLoading != null && !isLoading) {
-                if (errorMessage == null || errorMessage.isEmpty()) {
-                    textViewErrorAyat.setText("Tidak ada data ayat."); // Pesan default jika kosong
-                    textViewErrorAyat.setVisibility(View.VISIBLE);
-                }
-                if (textViewErrorAyat.getVisibility() == View.VISIBLE) buttonRefreshAyat.setVisibility(View.VISIBLE);
+            } else {
                 recyclerViewAyats.setVisibility(View.GONE);
-                progressBarAyat.setVisibility(View.GONE);
             }
         });
 
@@ -229,57 +210,87 @@ public class AyatListFragment extends Fragment {
             }
         });
 
-        ayatViewModel.getIsLoadingTafsir().observe(getViewLifecycleOwner(), isLoading -> {
-            if(isLoading != null && isLoading) {
-                // Bisa tampilkan loading global jika diinginkan
-                // Toast.makeText(getContext(), "Memuat data tafsir...", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        ayatViewModel.getErrorMessageTafsir().observe(getViewLifecycleOwner(), error -> {
-            if (error != null && !error.isEmpty()) {
-                Toast.makeText(getContext(), getString(R.string.error_failed_load_tafsir) + ": " + error, Toast.LENGTH_LONG).show();
-            }
-        });
-
         ayatViewModel.getTafsir().observe(getViewLifecycleOwner(), tafsirData -> {
             if (tafsirData != null && tafsirData.getTafsir() != null) {
                 ayatAdapter.updateTafsir(tafsirData.getTafsir());
             } else {
-                ayatAdapter.updateTafsir(new ArrayList<>()); // Kirim list kosong jika tidak ada data tafsir
+                ayatAdapter.updateTafsir(new ArrayList<>());
             }
         });
     }
 
     private void setupEventListeners() {
         buttonRefreshAyat.setOnClickListener(v -> {
-
-            if (NetworkUtils.isNetworkAvailable(requireContext())) {
-                // Jika ada koneksi, panggil metode refresh di ViewModel.
-                if (surahNumber > 0) {
-                    ayatViewModel.refreshAyats();
-                    ayatViewModel.loadTafsirForSurah(surahNumber);
-                }
-            } else {
-                // Jika tidak ada koneksi, beri tahu pengguna dengan Toast.
-                Toast.makeText(getContext(), "Tidak ada koneksi internet", Toast.LENGTH_SHORT).show();
+            if (surahNumber > 0) {
+                ayatViewModel.refreshAyats();
+                ayatViewModel.loadTafsirForSurah(surahNumber);
             }
         });
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) mediaPlayer.pause();
+    private void handlePlayAudioClick(final Ayat ayat) {
+        initializeMediaPlayer();
+
+        if (ayat.getNomorAyat() == currentlyPlayingAyatNomor) {
+            if (isAudioPlaying) {
+                mediaPlayer.pause();
+                isAudioPlaying = false;
+                isManuallyStopped = true;
+            } else {
+                mediaPlayer.start();
+                isAudioPlaying = true;
+                isManuallyStopped = false;
+            }
+            ayatAdapter.updatePlaybackState(currentlyPlayingAyatNomor, isAudioPlaying, false);
+        } else {
+            isManuallyStopped = false;
+            playNewAyat(ayat);
+        }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
+    private void playNewAyat(final Ayat ayat) {
+        String reciterKey = SettingsUtils.getReciterPreference(requireContext());
+        String audioUrl = ayat.getAudioUrlForReciter(reciterKey);
+
+        if (audioUrl == null || audioUrl.isEmpty()) {
+            Toast.makeText(getContext(), "Audio tidak tersedia.", Toast.LENGTH_SHORT).show();
+            if (!isManuallyStopped) playNextAyat();
+            return;
+        }
+
+        try {
+            currentlyPlayingAyatNomor = ayat.getNomorAyat();
+            ayatAdapter.updatePlaybackState(currentlyPlayingAyatNomor, false, true); // Tampilkan loading
+
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(audioUrl);
+            mediaPlayer.setOnPreparedListener(mp -> {
+                mp.start();
+                isAudioPlaying = true;
+                ayatAdapter.updatePlaybackState(currentlyPlayingAyatNomor, true, false); // Tampilkan pause
+            });
+            mediaPlayer.prepareAsync();
+        } catch (IOException | IllegalStateException e) {
+            Log.e("AyatListFragment", "Error playing new audio", e);
+            stopAndResetAudioState();
+        }
+    }
+
+    private void playNextAyat() {
+        int currentIdx = -1;
+        for (int i = 0; i < currentAyatList.size(); i++) {
+            if (currentAyatList.get(i).getNomorAyat() == currentlyPlayingAyatNomor) {
+                currentIdx = i;
+                break;
+            }
+        }
+
+        if (currentIdx != -1 && currentIdx < currentAyatList.size() - 1) {
+            Ayat nextAyat = currentAyatList.get(currentIdx + 1);
+            playNewAyat(nextAyat);
+        } else {
+            Toast.makeText(getContext(), "Selesai.", Toast.LENGTH_SHORT).show();
+            stopAndResetAudioState();
         }
     }
 }

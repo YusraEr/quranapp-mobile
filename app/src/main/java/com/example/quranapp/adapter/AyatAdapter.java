@@ -1,7 +1,6 @@
 package com.example.quranapp.adapter;
 
-// import android.text.Html; // Tidak lagi digunakan di bind jika teksLatinSpanned ada
-import android.text.Spanned; // Import Spanned
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +13,11 @@ import com.example.quranapp.R;
 import com.example.quranapp.data.remote.model.Ayat;
 import com.example.quranapp.data.remote.model.Tafsir;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.HashMap;
-
 
 public class AyatAdapter extends RecyclerView.Adapter<AyatAdapter.AyatViewHolder> {
 
@@ -27,12 +26,18 @@ public class AyatAdapter extends RecyclerView.Adapter<AyatAdapter.AyatViewHolder
     private final OnAyatClickListener listener;
     private final OnPlayAudioClickListener audioClickListener;
 
+    private int currentlyPlayingAyatNomor = -1;
+    private boolean isAudioPlaying = false;
+    private boolean isAudioLoading = false;
+
+    // Interface untuk klik pada item ayat (untuk toggle tafsir)
     public interface OnAyatClickListener {
         void onAyatClick(Ayat ayat, AyatViewHolder holder);
     }
 
+    // Interface untuk klik pada tombol putar audio
     public interface OnPlayAudioClickListener {
-        void onPlayAudioClick(Ayat ayat, String audioUrl);
+        void onPlayAudioClick(Ayat ayat);
     }
 
     public AyatAdapter(List<Ayat> ayatList, OnAyatClickListener listener, OnPlayAudioClickListener audioClickListener) {
@@ -53,7 +58,7 @@ public class AyatAdapter extends RecyclerView.Adapter<AyatAdapter.AyatViewHolder
     public void onBindViewHolder(@NonNull AyatViewHolder holder, int position) {
         Ayat currentAyat = ayatList.get(position);
         String tafsirTeks = tafsirMap.get(currentAyat.getNomorAyat());
-        holder.bind(currentAyat, tafsirTeks, listener, audioClickListener);
+        holder.bind(currentAyat, tafsirTeks, listener, audioClickListener, currentlyPlayingAyatNomor, isAudioPlaying, isAudioLoading);
     }
 
     @Override
@@ -76,16 +81,54 @@ public class AyatAdapter extends RecyclerView.Adapter<AyatAdapter.AyatViewHolder
                 tafsirMap.put(tafsirItem.getAyat(), tafsirItem.getTeks());
             }
         }
-        notifyDataSetChanged();
     }
+
+    /**
+     * Metode untuk mengupdate status playback dari Fragment.
+     * Adapter akan me-refresh item yang relevan untuk menampilkan ikon yang benar.
+     * @param playingAyatNomor Nomor ayat yang sedang diputar/dimuat, atau -1 jika tidak ada.
+     * @param isPlaying True jika audio sedang berjalan.
+     * @param isLoading True jika audio sedang dalam proses persiapan.
+     */
+    public void updatePlaybackState(int playingAyatNomor, boolean isPlaying, boolean isLoading) {
+        int oldPlayingPosition = findPositionByNomor(this.currentlyPlayingAyatNomor);
+        int newPlayingPosition = findPositionByNomor(playingAyatNomor);
+
+        this.currentlyPlayingAyatNomor = playingAyatNomor;
+        this.isAudioPlaying = isPlaying;
+        this.isAudioLoading = isLoading;
+
+        // Refresh item lama (untuk menghilangkan ikon pause/loading)
+        if (oldPlayingPosition != -1) {
+            notifyItemChanged(oldPlayingPosition);
+        }
+        // Refresh item baru (untuk menampilkan ikon pause/loading)
+        if (newPlayingPosition != -1 && newPlayingPosition != oldPlayingPosition) {
+            notifyItemChanged(newPlayingPosition);
+        } else if (newPlayingPosition != -1) {
+            // Jika item yang sama di-klik (misalnya, untuk pause), refresh juga
+            notifyItemChanged(newPlayingPosition);
+        }
+    }
+
+    private int findPositionByNomor(int nomor) {
+        if (nomor == -1) return -1;
+        for (int i = 0; i < ayatList.size(); i++) {
+            if (ayatList.get(i).getNomorAyat() == nomor) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 
     public static class AyatViewHolder extends RecyclerView.ViewHolder {
         TextView textViewNomorAyat;
         TextView textViewTeksArab;
         TextView textViewTeksLatin;
         TextView textViewTeksIndonesia;
-        ImageButton buttonPlayAudioAyat;
         public TextView textViewTafsirAyatItem;
+        ImageButton buttonPlayAudioAyat;
 
         public AyatViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -97,16 +140,16 @@ public class AyatAdapter extends RecyclerView.Adapter<AyatAdapter.AyatViewHolder
             textViewTafsirAyatItem = itemView.findViewById(R.id.textViewTafsirAyatItem);
         }
 
-        public void bind(final Ayat ayat, final String tafsirTeks, final OnAyatClickListener clickListener, final OnPlayAudioClickListener audioClickListener) {
+        public void bind(final Ayat ayat, final String tafsirTeks, final OnAyatClickListener clickListener,
+                         final OnPlayAudioClickListener audioClickListener,
+                         int currentlyPlayingAyatNomor, boolean isAudioPlaying, boolean isAudioLoading) {
+
             textViewNomorAyat.setText(String.format(Locale.getDefault(), "%d", ayat.getNomorAyat()));
             textViewTeksArab.setText(ayat.getTeksArab());
 
-            // Gunakan teksLatinSpanned jika tersedia, jika tidak, fallback ke teksLatin asli (tanpa parsing HTML di sini)
             if (ayat.getTeksLatinSpanned() != null) {
                 textViewTeksLatin.setText(ayat.getTeksLatinSpanned());
             } else if (ayat.getTeksLatin() != null) {
-                // Fallback jika teksLatinSpanned belum diproses (seharusnya tidak terjadi jika repo benar)
-                // Atau jika Anda memutuskan untuk tidak mem-parse beberapa teksLatin
                 textViewTeksLatin.setText(ayat.getTeksLatin());
             } else {
                 textViewTeksLatin.setText("");
@@ -114,28 +157,31 @@ public class AyatAdapter extends RecyclerView.Adapter<AyatAdapter.AyatViewHolder
 
             textViewTeksIndonesia.setText(ayat.getTeksIndonesia());
 
-            // Improved handling for tafsir text
             if (tafsirTeks != null && !tafsirTeks.isEmpty()) {
                 textViewTafsirAyatItem.setText(tafsirTeks);
-                // Initially hide tafsir, will be toggled on click
-                textViewTafsirAyatItem.setVisibility(View.GONE);
             } else {
-                textViewTafsirAyatItem.setText("Tafsir tidak tersedia");
+                textViewTafsirAyatItem.setText("");
                 textViewTafsirAyatItem.setVisibility(View.GONE);
             }
 
-            // Set click listener on the entire item view to toggle tafsir
-            itemView.setOnClickListener(v -> {
-                if (clickListener != null) {
-                    clickListener.onAyatClick(ayat, this);
-                }
-            });
+            itemView.setOnClickListener(v -> clickListener.onAyatClick(ayat, this));
 
-            final String preferredAudioUrl = ayat.getPreferredAudioUrl();
-            if (preferredAudioUrl != null && !preferredAudioUrl.isEmpty()) {
+            if (ayat.getAudio() != null && !ayat.getAudio().isEmpty()) {
                 buttonPlayAudioAyat.setVisibility(View.VISIBLE);
+                buttonPlayAudioAyat.setOnClickListener(v -> audioClickListener.onPlayAudioClick(ayat));
 
-                buttonPlayAudioAyat.setOnClickListener(v -> audioClickListener.onPlayAudioClick(ayat, preferredAudioUrl));
+                // Logika untuk menampilkan 1 dari 3 ikon: loading, playing, atau paused/stopped
+                if (ayat.getNomorAyat() == currentlyPlayingAyatNomor) {
+                    if (isAudioLoading) {
+                        buttonPlayAudioAyat.setImageResource(R.drawable.ic_hourglass_empty);
+                    } else if (isAudioPlaying) {
+                        buttonPlayAudioAyat.setImageResource(R.drawable.ic_pause_circle);
+                    } else { // Paused
+                        buttonPlayAudioAyat.setImageResource(R.drawable.ic_play_arrow);
+                    }
+                } else { // Bukan ayat yang sedang diputar
+                    buttonPlayAudioAyat.setImageResource(R.drawable.ic_play_arrow);
+                }
             } else {
                 buttonPlayAudioAyat.setVisibility(View.GONE);
             }

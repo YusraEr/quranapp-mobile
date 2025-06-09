@@ -8,10 +8,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import com.example.quranapp.data.remote.model.SuratNavInfo;
+import com.google.gson.Gson;
 
 import com.example.quranapp.data.remote.model.Ayat; // Model Ayat POJO
 import com.example.quranapp.data.remote.model.Surah; // Model Surah POJO
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map; // Untuk field audio di Ayat
@@ -50,6 +53,7 @@ public class QuranDbHelper extends SQLiteOpenHelper {
     public static final String COLUMN_AYAT_TEKS_LATIN = "teks_latin";
     public static final String COLUMN_AYAT_TEKS_INDONESIA = "teks_indonesia";
     public static final String COLUMN_AYAT_AUDIO_JSON = "audio_json"; // Menyimpan Map audio sebagai String JSON
+    private final Gson gson = new Gson();
 
     // Perintah SQL untuk Membuat Tabel Surah
     private static final String SQL_CREATE_TABLE_SURAH =
@@ -445,16 +449,13 @@ public class QuranDbHelper extends SQLiteOpenHelper {
         if (teksLatinIdx != -1) ayat.setTeksLatin(cursor.getString(teksLatinIdx));
         if (teksIndonesiaIdx != -1) ayat.setTeksIndonesia(cursor.getString(teksIndonesiaIdx));
 
-        if (audioJsonIdx != -1) {
+        if (audioJsonIdx != -1 && !cursor.isNull(audioJsonIdx)) {
             String audioJson = cursor.getString(audioJsonIdx);
             if (audioJson != null && !audioJson.isEmpty()) {
-                // Anda memerlukan library Gson di sini atau implementasi manual
-                // com.google.gson.Gson gson = new com.google.gson.Gson();
-                // java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<Map<String, String>>(){}.getType();
-                // Map<String, String> audioMap = gson.fromJson(audioJson, type);
-                // ayat.setAudio(audioMap);
-                // Untuk sementara, jika Gson belum siap:
-                ayat.setAudio(convertJsonStringToMap(audioJson));
+                // Gunakan Gson untuk deserialisasi yang aman
+                Type type = new TypeToken<Map<String, String>>(){}.getType();
+                Map<String, String> audioMap = gson.fromJson(audioJson, type);
+                ayat.setAudio(audioMap); // Set map audio ke objek Ayat
             }
         }
         return ayat;
@@ -467,20 +468,9 @@ public class QuranDbHelper extends SQLiteOpenHelper {
      */
     private String convertMapToJsonString(Map<String, String> map) {
         if (map == null || map.isEmpty()) {
-            return "{}";
+            return null; // Simpan null jika tidak ada data
         }
-        StringBuilder sb = new StringBuilder("{");
-        boolean first = true;
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            if (!first) {
-                sb.append(",");
-            }
-            sb.append("\"").append(entry.getKey()).append("\":\"")
-              .append(entry.getValue().replace("\"", "\\\"")).append("\"");
-            first = false;
-        }
-        sb.append("}");
-        return sb.toString();
+        return gson.toJson(map); // Gunakan Gson untuk serialisasi yang aman
     }
 
 
