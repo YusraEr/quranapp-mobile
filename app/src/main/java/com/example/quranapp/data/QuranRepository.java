@@ -15,6 +15,7 @@ import com.example.quranapp.data.remote.QuranApiService;
 import com.example.quranapp.data.remote.RetrofitClient;
 import com.example.quranapp.data.remote.model.Ayat;
 import com.example.quranapp.data.remote.model.AyatResponse;
+import com.example.quranapp.data.remote.model.AyatSearchResult;
 import com.example.quranapp.data.remote.model.Surah;
 import com.example.quranapp.data.remote.model.SurahResponse;
 import com.example.quranapp.data.remote.model.TafsirResponse;
@@ -432,6 +433,12 @@ public class QuranRepository {
                 errorMessageTafsir.postValue("Kesalahan jaringan saat mengambil tafsir: " + t.getMessage());
                 isLoadingTafsir.postValue(false);
             }
+        });
+    }
+    public void searchAyats(String keyword, MutableLiveData<List<AyatSearchResult>> searchResults) {
+        executorService.execute(() -> {
+            List<AyatSearchResult> results = dbHelper.searchAyatsByKeyword(keyword);
+            searchResults.postValue(results);
         });
     }
 }

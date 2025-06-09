@@ -7,6 +7,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.example.quranapp.data.remote.model.AyatSearchResult;
 import com.example.quranapp.data.remote.model.SuratNavInfo;
 import com.google.gson.Gson;
 
@@ -395,39 +397,6 @@ public class QuranDbHelper extends SQLiteOpenHelper {
         return ayatList;
     }
 
-
-    /**
-     * Mencari ayat berdasarkan kata kunci dalam teks Indonesia
-     * @param keyword Kata kunci pencarian
-     * @return List ayat yang mengandung kata kunci
-     */
-    public List<Ayat> searchAyatsByKeyword(String keyword) {
-        List<Ayat> resultList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = null;
-
-        try {
-            // Cari dalam teks Indonesia
-            String query = "SELECT * FROM " + TABLE_AYAT +
-                    " WHERE " + COLUMN_AYAT_TEKS_INDONESIA + " LIKE ?";
-            cursor = db.rawQuery(query, new String[]{"%" + keyword + "%"});
-
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    resultList.add(cursorToAyat(cursor));
-                } while (cursor.moveToNext());
-            }
-        } catch (SQLException e) {
-            Log.e(TAG, "Error searching ayats with keyword '" + keyword + "': " + e.getMessage());
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-
-        return resultList;
-    }
-
     /**
      * Helper method untuk mengubah Cursor menjadi objek Ayat.
      * @param cursor Cursor yang menunjuk ke baris data ayat.
@@ -471,6 +440,45 @@ public class QuranDbHelper extends SQLiteOpenHelper {
             return null; // Simpan null jika tidak ada data
         }
         return gson.toJson(map); // Gunakan Gson untuk serialisasi yang aman
+    }
+    public List<AyatSearchResult> searchAyatsByKeyword(String keyword) {
+        List<AyatSearchResult> resultList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+
+        // Query dengan JOIN antara tabel ayat dan surah
+        String query = "SELECT " +
+                "s." + COLUMN_SURAH_NAMA_LATIN + ", " +
+                "a." + COLUMN_AYAT_SURAH_NOMOR + ", " +
+                "a." + COLUMN_AYAT_NOMOR_AYAT + ", " +
+                "a." + COLUMN_AYAT_TEKS_ARAB + ", " +
+                "a." + COLUMN_AYAT_TEKS_INDONESIA + " " +
+                "FROM " + TABLE_AYAT + " a " +
+                "JOIN " + TABLE_SURAH + " s ON a." + COLUMN_AYAT_SURAH_NOMOR + " = s." + COLUMN_SURAH_NOMOR + " " +
+                "WHERE a." + COLUMN_AYAT_TEKS_INDONESIA + " LIKE ?";
+
+        try {
+            cursor = db.rawQuery(query, new String[]{"%" + keyword + "%"});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    String surahName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SURAH_NAMA_LATIN));
+                    int surahNum = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_AYAT_SURAH_NOMOR));
+                    int ayatNum = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_AYAT_NOMOR_AYAT));
+                    String textArab = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_AYAT_TEKS_ARAB));
+                    String textIndonesia = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_AYAT_TEKS_INDONESIA));
+
+                    resultList.add(new AyatSearchResult(surahNum, surahName, ayatNum, textArab, textIndonesia));
+                } while (cursor.moveToNext());
+            }
+        } catch (SQLException e) {
+            Log.e(TAG, "Error searching ayats with keyword '" + keyword + "': " + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return resultList;
     }
 
 

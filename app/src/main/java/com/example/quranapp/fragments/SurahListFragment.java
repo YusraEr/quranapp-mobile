@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -38,6 +39,7 @@ public class SurahListFragment extends Fragment {
     private ProgressBar progressBarFragment;
     private TextView textViewErrorFragment;
     private Button buttonRefreshFragment;
+    private SearchView searchViewSurah;
 
     private MediaPlayer surahMediaPlayer;
     private int currentlyPlayingSurahNomor = -1;
@@ -61,7 +63,9 @@ public class SurahListFragment extends Fragment {
         progressBarFragment = view.findViewById(R.id.progressBarFragment);
         textViewErrorFragment = view.findViewById(R.id.textViewErrorFragment);
         buttonRefreshFragment = view.findViewById(R.id.buttonRefreshFragment);
+        searchViewSurah = view.findViewById(R.id.searchViewSurah);
         setupRecyclerView();
+        setupSearchView();
         return view;
     }
 
@@ -83,6 +87,28 @@ public class SurahListFragment extends Fragment {
     public void onStop() {
         super.onStop();
         releaseMediaPlayer();
+    }
+
+    private void setupSearchView() {
+        searchViewSurah.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                surahViewModel.filterSurahs(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                surahViewModel.filterSurahs(newText);
+                return true;
+            }
+        });
+
+        // Clear button listener
+        searchViewSurah.setOnCloseListener(() -> {
+            surahViewModel.filterSurahs("");
+            return false;
+        });
     }
 
     private void initializeMediaPlayer() {
@@ -133,7 +159,24 @@ public class SurahListFragment extends Fragment {
     }
 
     private void setupObservers() {
-        // ... (Implementasi observer sama seperti versi stabil sebelumnya) ...
+        surahViewModel.filteredSurahs.observe(getViewLifecycleOwner(), surahs -> {
+            if (!isAdded()) return;
+
+            // Jika daftar tidak kosong, update adapter
+            if (surahs != null && !surahs.isEmpty()) {
+                surahAdapter.updateSurahs(surahs);
+                recyclerViewSurahs.setVisibility(View.VISIBLE);
+                textViewErrorFragment.setVisibility(View.GONE);
+            }
+            // Jika daftar kosong tapi tidak sedang loading, tampilkan pesan
+            else if (surahViewModel.getIsLoading().getValue() != null && !surahViewModel.getIsLoading().getValue()) {
+                surahAdapter.updateSurahs(new ArrayList<>()); // Kosongkan adapter
+                textViewErrorFragment.setText("Surah tidak ditemukan.");
+                textViewErrorFragment.setVisibility(View.VISIBLE);
+                recyclerViewSurahs.setVisibility(View.GONE);
+            }
+        });
+
         surahViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
             if (isLoading != null && isLoading && surahAdapter.getItemCount() == 0) {
                 progressBarFragment.setVisibility(View.VISIBLE);
@@ -144,6 +187,7 @@ public class SurahListFragment extends Fragment {
                 progressBarFragment.setVisibility(View.GONE);
             }
         });
+
         surahViewModel.getErrorMessage().observe(getViewLifecycleOwner(), errorMessage -> {
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 textViewErrorFragment.setText(errorMessage);
@@ -170,15 +214,6 @@ public class SurahListFragment extends Fragment {
                 stopAndResetAudioState();
             }
         });
-        surahViewModel.getAllSurahs().observe(getViewLifecycleOwner(), surahs -> {
-            if (surahs != null && !surahs.isEmpty()) {
-                recyclerViewSurahs.setVisibility(View.VISIBLE);
-                surahAdapter.updateSurahs(surahs);
-                surahAdapter.updatePlaybackState(currentlyPlayingSurahNomor, isSurahAudioPlaying, false);
-                textViewErrorFragment.setVisibility(View.GONE);
-                buttonRefreshFragment.setVisibility(View.GONE);
-            }
-        });
     }
 
     private void setupEventListeners() {
@@ -194,6 +229,7 @@ public class SurahListFragment extends Fragment {
             }
         });
     }
+
     private void handlePlayFullAudio(final Surah surah) {
         initializeMediaPlayer();
 
@@ -235,6 +271,5 @@ public class SurahListFragment extends Fragment {
             stopAndResetAudioState();
         }
     }
-
-
 }
+

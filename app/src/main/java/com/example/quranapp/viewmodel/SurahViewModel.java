@@ -4,10 +4,14 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.example.quranapp.data.remote.model.Surah;
 import com.example.quranapp.data.QuranRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SurahViewModel extends AndroidViewModel {
 
@@ -20,7 +24,9 @@ public class SurahViewModel extends AndroidViewModel {
     // LiveData baru untuk audio surah penuh
     private LiveData<String> fullAudioUrlLiveData;
     private LiveData<String> fullAudioErrorLiveData;
-
+    private List<Surah> masterSurahList = new ArrayList<>();
+    private final MutableLiveData<List<Surah>> _filteredSurahs = new MutableLiveData<>();
+    public final LiveData<List<Surah>> filteredSurahs = _filteredSurahs;
     public SurahViewModel(@NonNull Application application) {
         super(application);
         quranRepository = new QuranRepository(application);
@@ -32,6 +38,31 @@ public class SurahViewModel extends AndroidViewModel {
         // Hubungkan LiveData baru
         fullAudioUrlLiveData = quranRepository.getFullAudioUrlLiveData();
         fullAudioErrorLiveData = quranRepository.getFullAudioErrorLiveData();
+
+        allSurahsLiveData.observeForever(surahs -> {
+            if (surahs != null) {
+                masterSurahList = new ArrayList<>(surahs);
+                _filteredSurahs.postValue(masterSurahList);
+            }
+        });
+    }
+    public void filterSurahs(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            _filteredSurahs.postValue(masterSurahList);
+            return;
+        }
+
+        List<Surah> filteredList = new ArrayList<>();
+        String lowerCaseQuery = query.toLowerCase(Locale.getDefault()).trim();
+
+        for (Surah surah : masterSurahList) {
+            // Filter berdasarkan nama Latin atau nomor surah
+            if (surah.getNamaLatin().toLowerCase(Locale.getDefault()).contains(lowerCaseQuery) ||
+                    String.valueOf(surah.getNomor()).equals(lowerCaseQuery)) {
+                filteredList.add(surah);
+            }
+        }
+        _filteredSurahs.postValue(filteredList);
     }
 
     // --- Getter untuk LiveData ---

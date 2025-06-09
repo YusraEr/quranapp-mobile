@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_search_ayat"
+    android:icon="@drawable/ic_find_in_page"
+    android:title="Cari Ayat"
+    app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_select_reciter"
         android:icon="@drawable/ic_settings"
         android:title="Pilih Qari"
