@@ -21,6 +21,7 @@ import com.example.quranapp.R;
 import com.example.quranapp.adapter.AyatAdapter;
 import com.example.quranapp.data.remote.model.Ayat;
 import com.example.quranapp.data.remote.model.Tafsir;
+import com.example.quranapp.utils.NetworkUtils;
 import com.example.quranapp.utils.SettingsUtils;
 import com.example.quranapp.viewmodel.AyatViewModel;
 
@@ -252,12 +253,18 @@ public class AyatListFragment extends Fragment {
 
     private void setupEventListeners() {
         buttonRefreshAyat.setOnClickListener(v -> {
-            if (surahNumber > 0) {
-                ayatViewModel.refreshAyats();
-                ayatViewModel.loadTafsirForSurah(surahNumber);
+
+            if (NetworkUtils.isNetworkAvailable(requireContext())) {
+                // Jika ada koneksi, panggil metode refresh di ViewModel.
+                if (surahNumber > 0) {
+                    ayatViewModel.refreshAyats();
+                    ayatViewModel.loadTafsirForSurah(surahNumber);
+                }
+            } else {
+                // Jika tidak ada koneksi, beri tahu pengguna dengan Toast.
+                Toast.makeText(getContext(), "Tidak ada koneksi internet", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     @Override

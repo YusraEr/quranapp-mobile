@@ -23,6 +23,7 @@ import com.example.quranapp.DetailActivity;
 import com.example.quranapp.R;
 import com.example.quranapp.adapter.SurahAdapter;
 import com.example.quranapp.data.remote.model.Surah;
+import com.example.quranapp.utils.NetworkUtils;
 import com.example.quranapp.utils.SettingsUtils; // Pastikan import ini ada
 import com.example.quranapp.viewmodel.SurahViewModel;
 
@@ -181,7 +182,17 @@ public class SurahListFragment extends Fragment {
     }
 
     private void setupEventListeners() {
-        buttonRefreshFragment.setOnClickListener(v -> surahViewModel.refreshSurahs());
+        buttonRefreshFragment.setOnClickListener(v -> {
+            // PERBAIKAN DI SINI:
+            // Cek koneksi internet sebelum mencoba refresh.
+            if (NetworkUtils.isNetworkAvailable(requireContext())) {
+                // Jika ada koneksi, panggil metode refresh di ViewModel.
+                surahViewModel.refreshSurahs();
+            } else {
+                // Jika tidak ada koneksi, beri tahu pengguna dengan Toast.
+                Toast.makeText(getContext(), "Tidak ada koneksi internet", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     private void handlePlayFullAudio(final Surah surah) {
         initializeMediaPlayer();

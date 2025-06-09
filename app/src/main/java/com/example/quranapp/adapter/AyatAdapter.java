@@ -134,6 +134,7 @@ public class AyatAdapter extends RecyclerView.Adapter<AyatAdapter.AyatViewHolder
             final String preferredAudioUrl = ayat.getPreferredAudioUrl();
             if (preferredAudioUrl != null && !preferredAudioUrl.isEmpty()) {
                 buttonPlayAudioAyat.setVisibility(View.VISIBLE);
+
                 buttonPlayAudioAyat.setOnClickListener(v -> audioClickListener.onPlayAudioClick(ayat, preferredAudioUrl));
             } else {
                 buttonPlayAudioAyat.setVisibility(View.GONE);

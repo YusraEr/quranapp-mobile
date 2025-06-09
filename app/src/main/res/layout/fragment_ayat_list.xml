@@ -38,18 +38,7 @@
         tools:text="Gagal memuat data ayat.\nTidak ada koneksi internet."
         tools:visibility="visible" />
 
-    <Button
-        android:id="@+id/buttonRefreshAyatFragment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/label_try_again"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewErrorAyatFragment"
-        tools:visibility="visible" />
+
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollViewAyatDetail"
@@ -90,5 +79,16 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
+    <Button
+        android:id="@+id/buttonRefreshAyatFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/label_try_again"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewErrorAyatFragment"
+        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

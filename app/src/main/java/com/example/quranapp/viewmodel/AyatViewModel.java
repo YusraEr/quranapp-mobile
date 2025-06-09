@@ -117,3 +117,4 @@ public class AyatViewModel extends AndroidViewModel {
         return currentSurahNumber;
     }
 }
+
