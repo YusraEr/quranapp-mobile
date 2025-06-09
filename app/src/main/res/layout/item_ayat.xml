@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginEnd="4dp"
+    android:layout_marginBottom="6dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/textViewNomorAyatItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_surah_number"
+                android:gravity="center"
+                android:minWidth="32dp"
+                android:minHeight="32dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="1" />
+            <!-- bg_surah_number bisa menggunakan drawable yang sama dengan item_surah -->
+
+            <ImageButton
+                android:id="@+id/buttonPlayAudioAyat"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/desc_play_audio_ayat"
+                android:src="@drawable/ic_play_arrow"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:tint="?attr/colorPrimary"
+                tools:visibility="visible"/>
+            <!-- Anda perlu membuat drawable ic_play_arrow.xml -->
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/textViewTeksArabItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:gravity="end"
+            android:lineSpacingMultiplier="1.5"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="26sp"
+            tools:text="بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ" />
+
+        <TextView
+            android:id="@+id/textViewTeksLatinItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="italic"
+            tools:text="bismillāhir-raḥmānir-raḥīm(i)." />
+
+        <TextView
+            android:id="@+id/textViewTeksIndonesiaItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?android:attr/textColorSecondary"
+            tools:text="Dengan nama Allah Yang Maha Pengasih, Maha Penyayang." />
+
+        <!-- TextView untuk Tafsir per Ayat (awalnya disembunyikan) -->
+        <TextView
+            android:id="@+id/textViewTafsirAyatItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:padding="8dp"
+            android:background="?attr/colorSurfaceVariant"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone"
+            tools:text="Ini adalah tafsir untuk ayat ini..."
+            tools:visibility="visible"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

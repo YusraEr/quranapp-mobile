@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.QuranApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimaryLight</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryLight</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainerLight</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerLight</item>
+        <item name="colorSecondary">@color/colorSecondaryLight</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryLight</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainerLight</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainerLight</item>
+        <item name="colorError">@color/colorErrorLight</item>
+        <item name="colorOnError">@color/colorOnErrorLight</item>
+        <item name="colorErrorContainer">@color/colorErrorContainerLight</item>
+        <item name="colorOnErrorContainer">@color/colorOnErrorContainerLight</item>
+
+        <item name="android:colorBackground">@color/colorBackgroundLight</item>
+        <item name="colorOnBackground">@color/colorOnBackgroundLight</item>
+        <item name="colorSurface">@color/colorSurfaceLight</item>
+        <item name="colorOnSurface">@color/colorOnSurfaceLight</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariantLight</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariantLight</item>
+        <item name="colorOutline">@color/colorOutlineLight</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariantLight</item> <item name="android:statusBarColor">?attr/colorPrimaryVariant</item> <item name="actionBarTheme">@style/ThemeOverlay.QuranApp.ActionBar</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.QuranApp.Popup</item>
+
+        <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.OutlinedButton</item>
+
+    </style>
+
+    <style name="Theme.QuranApp" parent="Base.Theme.QuranApp" />
+
+    <style name="ThemeOverlay.QuranApp.ActionBar" parent="ThemeOverlay.Material3.Dark.ActionBar">
+    </style>
+
+    <style name="ThemeOverlay.QuranApp.Popup" parent="ThemeOverlay.Material3.Light">
+    </style>
+
+    <style name="Widget.App.Button.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">?attr/colorPrimary</item>
+    </style>
+
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Quran App</string>
+    <string name="title_activity_detail">Detail Surah</string>
+    <string name="action_change_theme">Ganti Tema</string>
+    <string name="label_refresh">Refresh</string>
+    <string name="label_try_again">Coba Lagi</string>
+    <string name="error_no_internet">Tidak ada koneksi internet.</string>
+    <string name="error_failed_to_load_data">Gagal memuat data.</string>
+    <string name="error_surah_not_valid">Nomor surah tidak valid.</string>
+    <string name="label_tafsir_surah">Tafsir Surah</string>
+    <string name="label_load_tafsir">Muat Tafsir</string>
+    <string name="label_loading_tafsir">Memuat tafsir...</string>
+    <string name="error_failed_load_tafsir">Gagal memuat tafsir</string>
+    <string name="info_tafsir_not_available">Tafsir tidak tersedia untuk surah ini.</string>
+    <string name="desc_play_audio_ayat">Putar Audio Ayat</string>
+    <string name="coba_lagi">coba lagi</string>
+</resources>
