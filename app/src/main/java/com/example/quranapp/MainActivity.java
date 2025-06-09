@@ -1,5 +1,6 @@
 package com.example.quranapp; // Ganti dengan package name aplikasi Anda
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         buttonRefresh = findViewById(R.id.buttonRefreshMain);
         buttonChangeTheme = findViewById(R.id.buttonChangeTheme);
 
+
         surahViewModel = new ViewModelProvider(this).get(SurahViewModel.class);
 
         if (savedInstanceState == null) {
@@ -73,6 +75,11 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_select_reciter) {
             showReciterSelectionDialog();
             return true;
+        }
+
+        if (item.getItemId() == R.id.action_search_ayat) {
+            Intent intent = new Intent(this, SearchActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

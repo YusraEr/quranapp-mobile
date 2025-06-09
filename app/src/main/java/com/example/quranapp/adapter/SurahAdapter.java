@@ -34,7 +34,7 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
     }
 
     public SurahAdapter(List<Surah> surahList, OnSurahClickListener listener, OnPlayFullAudioClickListener audioClickListener) {
-        this.surahList = surahList;
+        this.surahList = surahList != null ? surahList : new ArrayList<>();
         this.listener = listener;
         this.audioClickListener = audioClickListener;
     }
@@ -54,7 +54,7 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
 
     @Override
     public int getItemCount() {
-        return surahList == null ? 0 : surahList.size();
+        return surahList.size();
     }
 
     public void updateSurahs(List<Surah> newSurahList) {
@@ -86,15 +86,16 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
     }
 
     static class SurahViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewSurahNumber, textViewSurahNameLatin, textViewSurahNameArabic, textViewSurahInfo;
+        TextView textViewSurahNumber, textViewSurahName, textViewSurahNameArabic, textViewSurahTranslation, textViewSurahType;
         ImageButton buttonPlayFullAudioSurah;
 
         public SurahViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewSurahNumber = itemView.findViewById(R.id.textViewSurahNumber);
-            textViewSurahNameLatin = itemView.findViewById(R.id.textViewSurahNameLatin);
+            textViewSurahName = itemView.findViewById(R.id.textViewSurahName);
             textViewSurahNameArabic = itemView.findViewById(R.id.textViewSurahNameArabic);
-            textViewSurahInfo = itemView.findViewById(R.id.textViewSurahInfo);
+            textViewSurahTranslation = itemView.findViewById(R.id.textViewSurahTranslation);
+            textViewSurahType = itemView.findViewById(R.id.textViewSurahType);
             buttonPlayFullAudioSurah = itemView.findViewById(R.id.buttonPlayFullAudioSurah);
         }
 
@@ -102,28 +103,67 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
                          final OnPlayFullAudioClickListener audioClickListener,
                          int currentlyPlayingSurahNomor, boolean isAudioPlaying, boolean isAudioLoading) {
 
+            if (surah == null) return;
+
+            // Set nomor surah
             textViewSurahNumber.setText(String.valueOf(surah.getNomor()));
-            textViewSurahNameLatin.setText(surah.getNamaLatin());
-            textViewSurahNameArabic.setText(surah.getNama());
-            String info = String.format(Locale.getDefault(), "%s • %d Ayat", surah.getTempatTurun(), surah.getJumlahAyat());
-            textViewSurahInfo.setText(info);
 
-            itemView.setOnClickListener(v -> clickListener.onSurahClick(surah));
+            // Set nama latin surah
+            textViewSurahName.setText(surah.getNamaLatin() != null ? surah.getNamaLatin() : "");
 
-            // PERBAIKAN: Selalu tampilkan tombol play
-            buttonPlayFullAudioSurah.setVisibility(View.VISIBLE);
-            buttonPlayFullAudioSurah.setOnClickListener(v -> audioClickListener.onPlayFullAudioClick(surah));
+            // Set nama Arab surah
+            textViewSurahNameArabic.setText(surah.getNama() != null ? surah.getNama() : "");
 
-            if (surah.getNomor() == currentlyPlayingSurahNomor) {
-                if (isAudioLoading) {
+            // Format info surah: tempat turun dan jumlah ayat
+            String info = String.format(Locale.getDefault(), "%s • %d Ayat",
+                surah.getArti() != null ? surah.getArti() : "",
+                surah.getJumlahAyat());
+            textViewSurahTranslation.setText(info);
+
+            // Set jenis surah (Makkiyah/Madaniyah)
+            textViewSurahType.setText(surah.getTempatTurun() != null ? surah.getTempatTurun() : "");
+
+            // Set onclick listener untuk item
+            itemView.setOnClickListener(v -> {
+                if (clickListener != null) {
+                    clickListener.onSurahClick(surah);
+                }
+            });
+
+            // Handle tombol play audio jika tersedia
+            if (buttonPlayFullAudioSurah != null) {
+                buttonPlayFullAudioSurah.setVisibility(View.VISIBLE);
+
+                // Set onclick listener untuk tombol play
+                buttonPlayFullAudioSurah.setOnClickListener(v -> {
+                    if (audioClickListener != null) {
+                        audioClickListener.onPlayFullAudioClick(surah);
+                    }
+                });
+
+                // Update tampilan tombol berdasarkan status audio
+                updateAudioButtonState(surah.getNomor(), currentlyPlayingSurahNomor, isAudioPlaying, isAudioLoading);
+            }
+        }
+
+        // Method terpisah untuk mengatur tampilan tombol audio
+        private void updateAudioButtonState(int surahNomor, int playingSurahNomor, boolean isPlaying, boolean isLoading) {
+            if (buttonPlayFullAudioSurah == null) return;
+
+            if (surahNomor == playingSurahNomor) {
+                if (isLoading) {
                     buttonPlayFullAudioSurah.setImageResource(R.drawable.ic_hourglass_empty);
-                } else if (isAudioPlaying) {
+                    buttonPlayFullAudioSurah.setContentDescription("Sedang memuat audio");
+                } else if (isPlaying) {
                     buttonPlayFullAudioSurah.setImageResource(R.drawable.ic_pause_circle);
+                    buttonPlayFullAudioSurah.setContentDescription("Jeda audio");
                 } else {
                     buttonPlayFullAudioSurah.setImageResource(R.drawable.ic_play_arrow);
+                    buttonPlayFullAudioSurah.setContentDescription("Putar audio");
                 }
             } else {
                 buttonPlayFullAudioSurah.setImageResource(R.drawable.ic_play_arrow);
+                buttonPlayFullAudioSurah.setContentDescription("Putar audio");
             }
         }
     }

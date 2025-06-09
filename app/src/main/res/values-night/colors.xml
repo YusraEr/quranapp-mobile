@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary color - Darker Navy Blue for dark theme -->
+    <color name="colorPrimaryDark">#1A5F9C</color>
+    <color name="colorOnPrimaryDark">#FFFFFF</color>
+    <color name="colorPrimaryContainerDark">#173D5C</color>
+    <color name="colorOnPrimaryContainerDark">#D6E4F0</color>
+    <color name="colorPrimaryVariantDark">#143156</color>
+
+    <!-- Secondary color - Elegant Gold for dark theme -->
+    <color name="colorSecondaryDark">#DBBD82</color>
+    <color name="colorOnSecondaryDark">#000000</color>
+    <color name="colorSecondaryContainerDark">#725A29</color>
+    <color name="colorOnSecondaryContainerDark">#F2EAD3</color>
+
+    <!-- Error colors for dark theme -->
+    <color name="colorErrorDark">#F28B82</color>
+    <color name="colorOnErrorDark">#000000</color>
+    <color name="colorErrorContainerDark">#8C1D18</color>
+    <color name="colorOnErrorContainerDark">#F9DEDC</color>
+
+    <!-- Surface colors for dark theme -->
+    <color name="colorBackgroundDark">#121212</color>
+    <color name="colorOnBackgroundDark">#E3E3E3</color>
+    <color name="colorSurfaceDark">#1F1F1F</color>
+    <color name="colorOnSurfaceDark">#E3E3E3</color>
+    <color name="colorSurfaceVariantDark">#252525</color>
+    <color name="colorOnSurfaceVariantDark">#C4C7C5</color>
+    <color name="colorOutlineDark">#5C5C5C</color>
+    <color name="colorOutlineVariantDark">#444444</color>
+
+    <!-- Additional colors for elegant dark theme -->
+    <color name="colorElevationDark">#2D2D2D</color>
+    <color name="colorSurfaceElevated1Dark">#272727</color>
+    <color name="colorSurfaceElevated2Dark">#303030</color>
+    <color name="colorSurfaceElevated3Dark">#383838</color>
+    <color name="colorTextSecondaryDark">#B0B0B0</color>
+    <color name="colorDividerDark">#3A3A3A</color>
+</resources>

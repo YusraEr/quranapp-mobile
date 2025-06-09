@@ -46,7 +46,7 @@ public class AyatListFragment extends Fragment {
 
     // Variabel UI
     private ProgressBar progressBarAyat;
-    private TextView textViewErrorAyat;
+    private TextView textViewErrorAyat, textViewSurahNameHeader,textViewSurahArabicHeader;
     private Button buttonRefreshAyat;
     private TextView textViewSurahInfo;
 
@@ -81,6 +81,8 @@ public class AyatListFragment extends Fragment {
         textViewErrorAyat = view.findViewById(R.id.textViewErrorAyatFragment);
         buttonRefreshAyat = view.findViewById(R.id.buttonRefreshAyatFragment);
         textViewSurahInfo = view.findViewById(R.id.textViewSurahInfoDetail);
+        textViewSurahNameHeader = view.findViewById(R.id.textViewSurahNameHeader);
+        textViewSurahArabicHeader = view.findViewById(R.id.textViewSurahArabicHeader);
         setupRecyclerView();
         return view;
     }
@@ -204,6 +206,8 @@ public class AyatListFragment extends Fragment {
                 if (surahDetail.getArti() != null && !surahDetail.getArti().isEmpty()) info += "Arti: " + surahDetail.getArti() + "\n\n";
                 if (surahDetail.getDeskripsi() != null && !surahDetail.getDeskripsi().isEmpty()) info += "Deskripsi:\n" + android.text.Html.fromHtml(surahDetail.getDeskripsi()).toString();
                 textViewSurahInfo.setText(info);
+                textViewSurahArabicHeader.setText(surahDetail.getNama());
+                textViewSurahNameHeader.setText(surahDetail.getNamaLatin());
                 textViewSurahInfo.setVisibility(View.VISIBLE);
             } else {
                 textViewSurahInfo.setVisibility(View.GONE);

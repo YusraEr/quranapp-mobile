@@ -84,15 +84,13 @@ public class SearchActivity extends AppCompatActivity {
         });
 
         viewModel.searchResults.observe(this, results -> {
-            // --- PERBAIKAN DI SINI ---
-            // Panggil metode publik yang ada di ViewModel
             viewModel.searchCompleted();
 
             if (results != null && !results.isEmpty()) {
                 adapter.setData(results, searchView.getQuery().toString());
                 recyclerView.setVisibility(View.VISIBLE);
                 infoTextView.setVisibility(View.GONE);
-            } else if (results != null) { // Hasil pencarian kosong
+            } else if (results != null) {
                 recyclerView.setVisibility(View.GONE);
                 infoTextView.setText("Tidak ada hasil untuk '" + searchView.getQuery().toString() + "'");
                 infoTextView.setVisibility(View.VISIBLE);

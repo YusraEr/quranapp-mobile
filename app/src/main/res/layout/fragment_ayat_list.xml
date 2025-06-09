@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp"
+    android:background="@color/colorBackgroundLight"
     tools:context=".fragments.AyatListFragment">
 
     <ProgressBar
@@ -19,26 +19,57 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
-    <TextView
-        android:id="@+id/textViewErrorAyatFragment"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutErrorContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:gravity="center"
-        android:padding="16dp"
-        android:textColor="?attr/colorError"
-        android:textSize="16sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/buttonRefreshAyatFragment"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        tools:text="Gagal memuat data ayat.\nTidak ada koneksi internet."
-        tools:visibility="visible" />
+        app:layout_constraintWidth_percent="0.8">
 
+        <ImageView
+            android:id="@+id/imageViewError"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:alpha="0.6"
+            android:contentDescription="Kesalahan koneksi"
+            android:src="@drawable/ic_error"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/colorErrorLight" />
 
+        <TextView
+            android:id="@+id/textViewErrorAyatFragment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:textColor="@color/colorErrorLight"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewError"
+            tools:text="Gagal memuat data ayat.\nTidak ada koneksi internet." />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonRefreshAyatFragment"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Coba Lagi"
+            android:textColor="@color/colorPrimaryLight"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewErrorAyatFragment"
+            app:strokeColor="@color/colorPrimaryLight" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollViewAyatDetail"
@@ -53,42 +84,77 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingTop="10dp"
             android:paddingBottom="16dp">
 
-            <TextView
-                android:id="@+id/textViewSurahInfoDetail"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewSurahHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="12dp"
-                android:background="?attr/colorSurfaceVariant"
-                android:padding="12dp"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:visibility="gone"
-                tools:text="Arti: Pembukaan\n\nDeskripsi: Surat Al Faatihah..."
-                tools:visibility="visible" />
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorPrimaryLight"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/textViewSurahNameHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="center"
+                        android:textColor="@color/colorOnPrimaryLight"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        tools:text="Al-Fatihah" />
+
+                    <TextView
+                        android:id="@+id/textViewSurahArabicHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:textColor="@color/colorSecondaryLight"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        tools:text="الفاتحة" />
+
+                    <View
+                        android:layout_width="80dp"
+                        android:layout_height="2dp"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@color/colorSecondaryLight" />
+
+                    <TextView
+                        android:id="@+id/textViewSurahInfoDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:lineSpacingMultiplier="1.2"
+                        android:textColor="@color/colorOnPrimaryLight"
+                        android:textSize="14sp"
+                        tools:text="Makkiyah • 7 Ayat" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_ayats_fragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
-                android:nestedScrollingEnabled="false"
-                tools:itemCount="5"
+                android:overScrollMode="never"
+                tools:itemCount="3"
                 tools:listitem="@layout/item_ayat" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-    <Button
-        android:id="@+id/buttonRefreshAyatFragment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/label_try_again"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewErrorAyatFragment"
-        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,6 +5,7 @@
         <item name="colorOnPrimary">@color/colorOnPrimaryDark</item>
         <item name="colorPrimaryContainer">@color/colorPrimaryContainerDark</item>
         <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainerDark</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariantDark</item>
         <item name="colorSecondary">@color/colorSecondaryDark</item>
         <item name="colorOnSecondary">@color/colorOnSecondaryDark</item>
         <item name="colorSecondaryContainer">@color/colorSecondaryContainerDark</item>
@@ -23,7 +24,11 @@
         <item name="colorOutline">@color/colorOutlineDark</item>
         <item name="colorOutlineVariant">@color/colorOutlineVariantDark</item>
 
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item> <item name="actionBarTheme">@style/ThemeOverlay.QuranApp.ActionBar</item> <item name="actionBarPopupTheme">@style/ThemeOverlay.QuranApp.Popup.Dark</item> <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.OutlinedButton</item> </style>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.QuranApp.ActionBar</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.QuranApp.Popup.Dark</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.OutlinedButton</item>
+    </style>
 
     <style name="ThemeOverlay.QuranApp.Popup.Dark" parent="ThemeOverlay.Material3.Dark">
     </style>
