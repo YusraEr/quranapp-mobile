@@ -124,11 +124,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupObservers() {
-        // Mengamati status loading dari ViewModel (Contoh, jika ViewModel mengelola ini untuk MainActivity)
-        // Rancangan Anda menyebutkan SurahViewModel untuk SurahListFragment,
-        // jadi MainActivity mungkin perlu mengamati status yang lebih umum atau
-        // mengandalkan SurahListFragment untuk mengelola UI loading/errornya sendiri.
-        // Untuk saat ini, kita asumsikan ViewModel bisa memberikan status global.
 
         // Contoh jika SurahViewModel memiliki LiveData untuk loading dan error yang relevan untuk MainActivity
         surahViewModel.getIsLoading().observe(this, isLoading -> {
@@ -171,15 +166,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         buttonChangeTheme.setOnClickListener(v -> {
-            // Ganti tema
             if (ThemeUtils.isDarkTheme(this)) {
                 ThemeUtils.setLightTheme(this);
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             } else {
                 ThemeUtils.setDarkTheme(this);
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             }
-            recreate(); // Membuat ulang activity untuk menerapkan tema
         });
     }
 

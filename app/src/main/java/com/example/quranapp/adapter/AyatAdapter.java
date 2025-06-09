@@ -85,7 +85,7 @@ public class AyatAdapter extends RecyclerView.Adapter<AyatAdapter.AyatViewHolder
         TextView textViewTeksLatin;
         TextView textViewTeksIndonesia;
         ImageButton buttonPlayAudioAyat;
-        TextView textViewTafsirAyatItem;
+        public TextView textViewTafsirAyatItem;
 
         public AyatViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -114,14 +114,22 @@ public class AyatAdapter extends RecyclerView.Adapter<AyatAdapter.AyatViewHolder
 
             textViewTeksIndonesia.setText(ayat.getTeksIndonesia());
 
+            // Improved handling for tafsir text
             if (tafsirTeks != null && !tafsirTeks.isEmpty()) {
                 textViewTafsirAyatItem.setText(tafsirTeks);
+                // Initially hide tafsir, will be toggled on click
+                textViewTafsirAyatItem.setVisibility(View.GONE);
             } else {
-                textViewTafsirAyatItem.setText("");
+                textViewTafsirAyatItem.setText("Tafsir tidak tersedia");
                 textViewTafsirAyatItem.setVisibility(View.GONE);
             }
 
-            itemView.setOnClickListener(v -> clickListener.onAyatClick(ayat, this));
+            // Set click listener on the entire item view to toggle tafsir
+            itemView.setOnClickListener(v -> {
+                if (clickListener != null) {
+                    clickListener.onAyatClick(ayat, this);
+                }
+            });
 
             final String preferredAudioUrl = ayat.getPreferredAudioUrl();
             if (preferredAudioUrl != null && !preferredAudioUrl.isEmpty()) {

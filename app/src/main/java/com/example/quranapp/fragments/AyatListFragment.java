@@ -107,7 +107,12 @@ public class AyatListFragment extends Fragment {
         // Listener untuk klik item ayat (untuk toggle tafsir)
         AyatAdapter.OnAyatClickListener ayatClickListener = (ayat, holder) -> {
             Log.d("AyatListFragment", "Ayat clicked: " + ayat.getNomorAyat());
+            // Toggle tafsir visibility with animation
             holder.toggleTafsirVisibility();
+
+            // Log tafsir status for debugging
+            boolean isVisible = holder.textViewTafsirAyatItem.getVisibility() == View.VISIBLE;
+            Log.d("AyatListFragment", "Tafsir visibility after toggle: " + (isVisible ? "VISIBLE" : "GONE"));
         };
 
         // Listener untuk klik tombol putar audio per ayat

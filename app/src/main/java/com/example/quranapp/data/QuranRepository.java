@@ -332,7 +332,39 @@ public class QuranRepository {
         });
     }
 
-    private void fetchDetailSurahFromApiForInfo(int nomorSurah) { /* ... implementasi sama ... */ }
+    private void fetchDetailSurahFromApiForInfo(int nomorSurah) {
+        quranApiService.getDetailSurah(nomorSurah).enqueue(new Callback<AyatResponse>() {
+            @Override
+            public void onResponse(Call<AyatResponse> call, Response<AyatResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    AyatResponse.AyatData ayatDataFromApi = response.body().getData();
+                    surahDetailLiveData.setValue(ayatDataFromApi);
+
+                    // Update the Surah object in the database with navigation information
+                    executorService.execute(() -> {
+                        try {
+                            Surah surah = dbHelper.getSurahByNomor(nomorSurah);
+                            if (surah != null) {
+                                // Copy navigation information from AyatData to Surah
+                                surah.setSuratSelanjutnya(ayatDataFromApi.getSuratSelanjutnya());
+                                surah.setSuratSebelumnya(ayatDataFromApi.getSuratSebelumnya());
+
+                                // Update the Surah in the database
+                                dbHelper.addSurah(surah);
+                                Log.d(TAG, "Updated surah " + nomorSurah + " with navigation information in database");
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error updating navigation info for surah " + nomorSurah, e);
+                        }
+                    });
+                }
+            }
+            @Override
+            public void onFailure(Call<AyatResponse> call, Throwable t) {
+                // Failure handling is already implemented in fetchAyatsAndDetailFromApi
+            }
+        });
+    }
 
     private void loadFallbackAyatsFromDb(int nomorSurah, String messagePrefix) {
         executorService.execute(() -> {

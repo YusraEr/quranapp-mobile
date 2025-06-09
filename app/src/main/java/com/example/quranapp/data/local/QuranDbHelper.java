@@ -7,6 +7,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import com.example.quranapp.data.remote.model.SuratNavInfo;
 
 import com.example.quranapp.data.remote.model.Ayat; // Model Ayat POJO
 import com.example.quranapp.data.remote.model.Surah; // Model Surah POJO
@@ -21,7 +22,7 @@ public class QuranDbHelper extends SQLiteOpenHelper {
 
     // Informasi Database
     private static final String DATABASE_NAME = "quran_app.db";
-    private static final int DATABASE_VERSION = 2; // Naikkan versi karena ada perubahan skema (tambah tabel Ayat)
+    private static final int DATABASE_VERSION = 3; // Updated to version 3 for next/prev surah columns
 
     // Nama Tabel
     public static final String TABLE_SURAH = "surahs";
@@ -35,6 +36,11 @@ public class QuranDbHelper extends SQLiteOpenHelper {
     public static final String COLUMN_SURAH_TEMPAT_TURUN = "tempat_turun";
     public static final String COLUMN_SURAH_ARTI = "arti";
     public static final String COLUMN_SURAH_DESKRIPSI = "deskripsi";
+    // New columns for next and previous surah
+    public static final String COLUMN_SURAH_NEXT_NUMBER = "next_surah_number";
+    public static final String COLUMN_SURAH_NEXT_NAME = "next_surah_name";
+    public static final String COLUMN_SURAH_PREV_NUMBER = "prev_surah_number";
+    public static final String COLUMN_SURAH_PREV_NAME = "prev_surah_name";
 
     // Kolom Tabel Ayat
     public static final String COLUMN_AYAT_ID = "_id"; // Primary key untuk tabel ayat
@@ -54,7 +60,11 @@ public class QuranDbHelper extends SQLiteOpenHelper {
                     COLUMN_SURAH_JUMLAH_AYAT + " INTEGER," +
                     COLUMN_SURAH_TEMPAT_TURUN + " TEXT," +
                     COLUMN_SURAH_ARTI + " TEXT," +
-                    COLUMN_SURAH_DESKRIPSI + " TEXT)";
+                    COLUMN_SURAH_DESKRIPSI + " TEXT," +
+                    COLUMN_SURAH_NEXT_NUMBER + " INTEGER," +
+                    COLUMN_SURAH_NEXT_NAME + " TEXT," +
+                    COLUMN_SURAH_PREV_NUMBER + " INTEGER," +
+                    COLUMN_SURAH_PREV_NAME + " TEXT)";
 
     // Perintah SQL untuk Membuat Tabel Ayat
     private static final String SQL_CREATE_TABLE_AYAT =
@@ -122,6 +132,18 @@ public class QuranDbHelper extends SQLiteOpenHelper {
         values.put(COLUMN_SURAH_ARTI, surah.getArti());
         values.put(COLUMN_SURAH_DESKRIPSI, surah.getDeskripsi());
 
+        // Store next surah information if available
+        if (surah.getSuratSelanjutnya() != null) {
+            values.put(COLUMN_SURAH_NEXT_NUMBER, surah.getSuratSelanjutnya().getNomor());
+            values.put(COLUMN_SURAH_NEXT_NAME, surah.getSuratSelanjutnya().getNamaLatin());
+        }
+
+        // Store previous surah information if available
+        if (surah.getSuratSebelumnya() != null) {
+            values.put(COLUMN_SURAH_PREV_NUMBER, surah.getSuratSebelumnya().getNomor());
+            values.put(COLUMN_SURAH_PREV_NAME, surah.getSuratSebelumnya().getNamaLatin());
+        }
+
         long id = -1;
         try {
             id = db.insertOrThrow(TABLE_SURAH, null, values);
@@ -144,6 +166,19 @@ public class QuranDbHelper extends SQLiteOpenHelper {
                 values.put(COLUMN_SURAH_TEMPAT_TURUN, surah.getTempatTurun());
                 values.put(COLUMN_SURAH_ARTI, surah.getArti());
                 values.put(COLUMN_SURAH_DESKRIPSI, surah.getDeskripsi());
+
+                // Store next surah information if available
+                if (surah.getSuratSelanjutnya() != null) {
+                    values.put(COLUMN_SURAH_NEXT_NUMBER, surah.getSuratSelanjutnya().getNomor());
+                    values.put(COLUMN_SURAH_NEXT_NAME, surah.getSuratSelanjutnya().getNamaLatin());
+                }
+
+                // Store previous surah information if available
+                if (surah.getSuratSebelumnya() != null) {
+                    values.put(COLUMN_SURAH_PREV_NUMBER, surah.getSuratSebelumnya().getNomor());
+                    values.put(COLUMN_SURAH_PREV_NAME, surah.getSuratSebelumnya().getNamaLatin());
+                }
+
                 db.insertWithOnConflict(TABLE_SURAH, null, values, SQLiteDatabase.CONFLICT_REPLACE);
             }
             db.setTransactionSuccessful();
@@ -156,6 +191,7 @@ public class QuranDbHelper extends SQLiteOpenHelper {
 
     /**
      * Menambahkan atau mengganti seluruh data surah ke dalam database
+     *
      * @param surahList List Surah yang akan disimpan
      */
     public void addOrReplaceSurahs(List<Surah> surahList) {
@@ -172,6 +208,18 @@ public class QuranDbHelper extends SQLiteOpenHelper {
                 values.put(COLUMN_SURAH_TEMPAT_TURUN, surah.getTempatTurun());
                 values.put(COLUMN_SURAH_ARTI, surah.getArti());
                 values.put(COLUMN_SURAH_DESKRIPSI, surah.getDeskripsi());
+
+                // Store next surah information if available
+                if (surah.getSuratSelanjutnya() != null) {
+                    values.put(COLUMN_SURAH_NEXT_NUMBER, surah.getSuratSelanjutnya().getNomor());
+                    values.put(COLUMN_SURAH_NEXT_NAME, surah.getSuratSelanjutnya().getNamaLatin());
+                }
+
+                // Store previous surah information if available
+                if (surah.getSuratSebelumnya() != null) {
+                    values.put(COLUMN_SURAH_PREV_NUMBER, surah.getSuratSebelumnya().getNomor());
+                    values.put(COLUMN_SURAH_PREV_NAME, surah.getSuratSebelumnya().getNamaLatin());
+                }
 
                 // Gunakan CONFLICT_REPLACE untuk mengganti data lama jika nomor surah sudah ada
                 db.insertWithOnConflict(TABLE_SURAH, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -260,6 +308,12 @@ public class QuranDbHelper extends SQLiteOpenHelper {
         int artiIdx = cursor.getColumnIndex(COLUMN_SURAH_ARTI);
         int deskripsiIdx = cursor.getColumnIndex(COLUMN_SURAH_DESKRIPSI);
 
+        // Indexes for next/previous surah columns
+        int nextSurahNumberIdx = cursor.getColumnIndex(COLUMN_SURAH_NEXT_NUMBER);
+        int nextSurahNameIdx = cursor.getColumnIndex(COLUMN_SURAH_NEXT_NAME);
+        int prevSurahNumberIdx = cursor.getColumnIndex(COLUMN_SURAH_PREV_NUMBER);
+        int prevSurahNameIdx = cursor.getColumnIndex(COLUMN_SURAH_PREV_NAME);
+
         Surah surah = new Surah();
         if (nomorIdx != -1) surah.setNomor(cursor.getInt(nomorIdx));
         if (namaArabIdx != -1) surah.setNama(cursor.getString(namaArabIdx));
@@ -268,10 +322,66 @@ public class QuranDbHelper extends SQLiteOpenHelper {
         if (tempatTurunIdx != -1) surah.setTempatTurun(cursor.getString(tempatTurunIdx));
         if (artiIdx != -1) surah.setArti(cursor.getString(artiIdx));
         if (deskripsiIdx != -1) surah.setDeskripsi(cursor.getString(deskripsiIdx));
+
+        // Create and set next surah info if available
+        if (nextSurahNumberIdx != -1 && nextSurahNameIdx != -1 &&
+                !cursor.isNull(nextSurahNumberIdx) && !cursor.isNull(nextSurahNameIdx)) {
+
+            int nextSurahNumber = cursor.getInt(nextSurahNumberIdx);
+            String nextSurahName = cursor.getString(nextSurahNameIdx);
+
+            if (nextSurahNumber > 0 && nextSurahName != null && !nextSurahName.isEmpty()) {
+                SuratNavInfo nextSurah = new SuratNavInfo();
+                nextSurah.setNomor(nextSurahNumber);
+                nextSurah.setNamaLatin(nextSurahName);
+                surah.setSuratSelanjutnya(nextSurah);
+            }
+        }
+
+        // Create and set previous surah info if available
+        if (prevSurahNumberIdx != -1 && prevSurahNameIdx != -1 &&
+                !cursor.isNull(prevSurahNumberIdx) && !cursor.isNull(prevSurahNameIdx)) {
+
+            int prevSurahNumber = cursor.getInt(prevSurahNumberIdx);
+            String prevSurahName = cursor.getString(prevSurahNameIdx);
+
+            if (prevSurahNumber > 0 && prevSurahName != null && !prevSurahName.isEmpty()) {
+                SuratNavInfo prevSurah = new SuratNavInfo();
+                prevSurah.setNomor(prevSurahNumber);
+                prevSurah.setNamaLatin(prevSurahName);
+                surah.setSuratSebelumnya(prevSurah);
+            }
+        }
+
         return surah;
     }
 
-    // --- Metode CRUD untuk Ayat ---
+    // --- Metode CRUD untuk Ayat --
+
+    /**
+     * Menambahkan satu ayat ke dalam database
+     * @param ayat Ayat yang akan disimpan
+     * @param surahNumber Nomor surah dari ayat ini
+     * @return ID ayat yang baru ditambahkan, atau -1 jika gagal
+     */
+    public long addAyat(Ayat ayat, int surahNumber) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_AYAT_SURAH_NOMOR, surahNumber);
+        values.put(COLUMN_AYAT_NOMOR_AYAT, ayat.getNomorAyat());
+        values.put(COLUMN_AYAT_TEKS_ARAB, ayat.getTeksArab());
+        values.put(COLUMN_AYAT_TEKS_LATIN, ayat.getTeksLatin());
+        values.put(COLUMN_AYAT_TEKS_INDONESIA, ayat.getTeksIndonesia());
+        values.put(COLUMN_AYAT_AUDIO_JSON, ayat.getAudio() != null ? convertMapToJsonString(ayat.getAudio()) : null);
+
+        long id = -1;
+        try {
+            id = db.insertOrThrow(TABLE_AYAT, null, values);
+        } catch (SQLException e) {
+            Log.e(TAG, "Error inserting ayat " + ayat.getNomorAyat() + " for surah " + surahNumber + ": " + e.getMessage());
+        }
+        return id;
+    }
 
     /**
      * Menambahkan daftar ayat untuk surah tertentu.
@@ -295,16 +405,7 @@ public class QuranDbHelper extends SQLiteOpenHelper {
                 values.put(COLUMN_AYAT_TEKS_ARAB, ayat.getTeksArab());
                 values.put(COLUMN_AYAT_TEKS_LATIN, ayat.getTeksLatin());
                 values.put(COLUMN_AYAT_TEKS_INDONESIA, ayat.getTeksIndonesia());
-
-                // Mengonversi Map audio ke String JSON untuk disimpan
-                // Anda memerlukan library Gson di sini atau implementasi manual
-                // Contoh dengan Gson (pastikan Gson ada di dependensi):
-                // com.google.gson.Gson gson = new com.google.gson.Gson();
-                // String audioJson = gson.toJson(ayat.getAudio());
-                // values.put(COLUMN_AYAT_AUDIO_JSON, audioJson);
-                // Untuk sementara, jika Gson belum siap, kita bisa simpan null atau string kosong
                 values.put(COLUMN_AYAT_AUDIO_JSON, ayat.getAudio() != null ? convertMapToJsonString(ayat.getAudio()) : null);
-
 
                 db.insert(TABLE_AYAT, null, values);
             }
@@ -315,6 +416,37 @@ public class QuranDbHelper extends SQLiteOpenHelper {
         } finally {
             db.endTransaction();
         }
+    }
+
+    /**
+     * Mengambil satu ayat berdasarkan nomor surah dan nomor ayat
+     * @param surahNumber Nomor surah
+     * @param ayatNumber Nomor ayat dalam surah
+     * @return Objek Ayat atau null jika tidak ditemukan
+     */
+    public Ayat getAyat(int surahNumber, int ayatNumber) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Ayat ayat = null;
+        Cursor cursor = null;
+
+        try {
+            cursor = db.query(TABLE_AYAT, null,
+                    COLUMN_AYAT_SURAH_NOMOR + "=? AND " + COLUMN_AYAT_NOMOR_AYAT + "=?",
+                    new String[]{String.valueOf(surahNumber), String.valueOf(ayatNumber)},
+                    null, null, null, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                ayat = cursorToAyat(cursor);
+            }
+        } catch (SQLException e) {
+            Log.e(TAG, "Error getting ayat " + ayatNumber + " from surah " + surahNumber + ": " + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return ayat;
     }
 
     /**
@@ -350,6 +482,68 @@ public class QuranDbHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Mengupdate data ayat yang sudah ada
+     * @param ayat Data ayat yang akan diupdate
+     * @param surahNumber Nomor surah dari ayat ini
+     * @return Jumlah baris yang diupdate (seharusnya 1 jika sukses)
+     */
+    public int updateAyat(Ayat ayat, int surahNumber) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_AYAT_TEKS_ARAB, ayat.getTeksArab());
+        values.put(COLUMN_AYAT_TEKS_LATIN, ayat.getTeksLatin());
+        values.put(COLUMN_AYAT_TEKS_INDONESIA, ayat.getTeksIndonesia());
+        values.put(COLUMN_AYAT_AUDIO_JSON, ayat.getAudio() != null ? convertMapToJsonString(ayat.getAudio()) : null);
+
+        int rowsAffected = 0;
+        try {
+            rowsAffected = db.update(TABLE_AYAT, values,
+                    COLUMN_AYAT_SURAH_NOMOR + "=? AND " + COLUMN_AYAT_NOMOR_AYAT + "=?",
+                    new String[]{String.valueOf(surahNumber), String.valueOf(ayat.getNomorAyat())});
+        } catch (SQLException e) {
+            Log.e(TAG, "Error updating ayat " + ayat.getNomorAyat() + " for surah " + surahNumber + ": " + e.getMessage());
+        }
+        return rowsAffected;
+    }
+
+    /**
+     * Menghapus satu ayat dari database
+     * @param surahNumber Nomor surah
+     * @param ayatNumber Nomor ayat
+     * @return Jumlah baris yang dihapus (seharusnya 1 jika sukses)
+     */
+    public int deleteAyat(int surahNumber, int ayatNumber) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = 0;
+        try {
+            rowsDeleted = db.delete(TABLE_AYAT,
+                    COLUMN_AYAT_SURAH_NOMOR + "=? AND " + COLUMN_AYAT_NOMOR_AYAT + "=?",
+                    new String[]{String.valueOf(surahNumber), String.valueOf(ayatNumber)});
+        } catch (SQLException e) {
+            Log.e(TAG, "Error deleting ayat " + ayatNumber + " from surah " + surahNumber + ": " + e.getMessage());
+        }
+        return rowsDeleted;
+    }
+
+    /**
+     * Menghapus semua ayat untuk surah tertentu
+     * @param surahNumber Nomor surah
+     * @return Jumlah baris yang dihapus
+     */
+    public int deleteAllAyatsForSurah(int surahNumber) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = 0;
+        try {
+            rowsDeleted = db.delete(TABLE_AYAT, COLUMN_AYAT_SURAH_NOMOR + "=?",
+                    new String[]{String.valueOf(surahNumber)});
+        } catch (SQLException e) {
+            Log.e(TAG, "Error deleting all ayats for surah " + surahNumber + ": " + e.getMessage());
+        }
+        return rowsDeleted;
+    }
+
+    /**
      * Menghitung jumlah ayat untuk surah tertentu dalam database.
      * @param nomorSurah Nomor surah.
      * @return Jumlah ayat.
@@ -372,6 +566,68 @@ public class QuranDbHelper extends SQLiteOpenHelper {
             }
         }
         return count;
+    }
+
+    /**
+     * Mencari ayat berdasarkan kata kunci dalam teks Indonesia
+     * @param keyword Kata kunci pencarian
+     * @return List ayat yang mengandung kata kunci
+     */
+    public List<Ayat> searchAyatsByKeyword(String keyword) {
+        List<Ayat> resultList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+
+        try {
+            // Cari dalam teks Indonesia
+            String query = "SELECT * FROM " + TABLE_AYAT +
+                    " WHERE " + COLUMN_AYAT_TEKS_INDONESIA + " LIKE ?";
+            cursor = db.rawQuery(query, new String[]{"%" + keyword + "%"});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    resultList.add(cursorToAyat(cursor));
+                } while (cursor.moveToNext());
+            }
+        } catch (SQLException e) {
+            Log.e(TAG, "Error searching ayats with keyword '" + keyword + "': " + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return resultList;
+    }
+
+    /**
+     * Menemukan ayat terakhir yang dibaca untuk suatu surah
+     * @param surahNumber Nomor surah
+     * @return Nomor ayat terakhir yang dibaca atau 1 jika tidak ada riwayat
+     */
+    public int getLastReadAyat(int surahNumber) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        int lastAyat = 1; // Default ke ayat pertama
+
+        try {
+            // Implementasi ini dapat disesuaikan jika ada tabel terpisah untuk riwayat baca
+            // Untuk contoh ini, kita mengasumsikan ada tabel history (perlu ditambahkan)
+            String query = "SELECT last_ayat FROM reading_history WHERE surah_number = ? LIMIT 1";
+            cursor = db.rawQuery(query, new String[]{String.valueOf(surahNumber)});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                lastAyat = cursor.getInt(0);
+            }
+        } catch (SQLException e) {
+            Log.e(TAG, "Error getting last read ayat for surah " + surahNumber + ": " + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return lastAyat;
     }
 
     /**
@@ -410,8 +666,11 @@ public class QuranDbHelper extends SQLiteOpenHelper {
         return ayat;
     }
 
-    // Metode helper sederhana untuk konversi Map ke JSON String (tanpa Gson)
-    // Ini sangat dasar dan mungkin tidak menangani semua kasus. Gson lebih disarankan.
+    /**
+     * Convert a Map<String, String> to a JSON string representation
+     * @param map The map to convert
+     * @return A JSON string representing the map
+     */
     private String convertMapToJsonString(Map<String, String> map) {
         if (map == null || map.isEmpty()) {
             return "{}";
@@ -422,32 +681,91 @@ public class QuranDbHelper extends SQLiteOpenHelper {
             if (!first) {
                 sb.append(",");
             }
-            sb.append("\"").append(entry.getKey()).append("\":\"").append(entry.getValue()).append("\"");
+            sb.append("\"").append(entry.getKey()).append("\":\"")
+              .append(entry.getValue().replace("\"", "\\\"")).append("\"");
             first = false;
         }
         sb.append("}");
         return sb.toString();
     }
 
-    // Metode helper sederhana untuk konversi JSON String ke Map (tanpa Gson)
-    // Ini sangat dasar dan hanya menangani format spesifik dari convertMapToJsonString.
+    /**
+     * Convert a JSON string representation to a Map<String, String>
+     * @param jsonString The JSON string to convert
+     * @return A Map representing the JSON data
+     */
     private Map<String, String> convertJsonStringToMap(String jsonString) {
-        if (jsonString == null || jsonString.length() <= 2 || !jsonString.startsWith("{") || !jsonString.endsWith("}")) {
-            return new java.util.HashMap<>();
-        }
         Map<String, String> map = new java.util.HashMap<>();
+        if (jsonString == null || jsonString.length() <= 2 || !jsonString.startsWith("{") || !jsonString.endsWith("}")) {
+            return map;
+        }
+
         String content = jsonString.substring(1, jsonString.length() - 1);
         if (content.isEmpty()) return map;
 
-        String[] pairs = content.split(",");
-        for (String pair : pairs) {
-            String[] keyValue = pair.split(":", 2);
-            if (keyValue.length == 2) {
-                String key = keyValue[0].trim().replaceAll("\"", "");
-                String value = keyValue[1].trim().replaceAll("\"", "");
-                map.put(key, value);
+        // Simple parsing implementation
+        boolean inKey = false;
+        boolean inValue = false;
+        boolean escapeNext = false;
+        StringBuilder currentKey = new StringBuilder();
+        StringBuilder currentValue = new StringBuilder();
+
+        for (int i = 0; i < content.length(); i++) {
+            char c = content.charAt(i);
+
+            if (escapeNext) {
+                if (inKey) currentKey.append(c);
+                else if (inValue) currentValue.append(c);
+                escapeNext = false;
+                continue;
+            }
+
+            switch (c) {
+                case '\\':
+                    escapeNext = true;
+                    break;
+                case '"':
+                    if (!inKey && !inValue) {
+                        inKey = true;
+                    } else if (inKey) {
+                        inKey = false;
+                    } else if (!inValue) {
+                        inValue = true;
+                    } else {
+                        inValue = false;
+                        map.put(currentKey.toString(), currentValue.toString());
+                        currentKey = new StringBuilder();
+                        currentValue = new StringBuilder();
+                    }
+                    break;
+                case ':':
+                    if (!inKey && !inValue) {
+                        // Skip as it's the separator between key and value
+                    } else if (inKey) {
+                        currentKey.append(c);
+                    } else if (inValue) {
+                        currentValue.append(c);
+                    }
+                    break;
+                case ',':
+                    if (!inKey && !inValue) {
+                        // Skip as it's the separator between entries
+                    } else if (inKey) {
+                        currentKey.append(c);
+                    } else if (inValue) {
+                        currentValue.append(c);
+                    }
+                    break;
+                default:
+                    if (inKey) {
+                        currentKey.append(c);
+                    } else if (inValue) {
+                        currentValue.append(c);
+                    }
+                    break;
             }
         }
+
         return map;
     }
 }

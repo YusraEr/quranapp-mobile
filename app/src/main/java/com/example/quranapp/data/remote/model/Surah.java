@@ -32,6 +32,10 @@ public class Surah {
     @SerializedName("audioFull") // Jika ada field ini di API untuk audio full surah
     private AudioUrl audioFull; // Menggunakan kelas AudioUrl yang akan kita definisikan
 
+    // Adding fields for next and previous surah navigation
+    private SuratNavInfo suratSelanjutnya;
+    private SuratNavInfo suratSebelumnya;
+
     // Konstruktor default (diperlukan oleh beberapa library seperti Gson/Retrofit)
     public Surah() {
     }
@@ -209,5 +213,23 @@ public class Surah {
                 "nomor=" + nomor +
                 ", namaLatin='" + namaLatin + '\'' +
                 '}';
+    }
+
+    // Getter and setter for next surah information
+    public SuratNavInfo getSuratSelanjutnya() {
+        return suratSelanjutnya;
+    }
+
+    public void setSuratSelanjutnya(SuratNavInfo suratSelanjutnya) {
+        this.suratSelanjutnya = suratSelanjutnya;
+    }
+
+    // Getter and setter for previous surah information
+    public SuratNavInfo getSuratSebelumnya() {
+        return suratSebelumnya;
+    }
+
+    public void setSuratSebelumnya(SuratNavInfo suratSebelumnya) {
+        this.suratSebelumnya = suratSebelumnya;
     }
 }

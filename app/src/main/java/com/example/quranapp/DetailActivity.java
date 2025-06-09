@@ -92,30 +92,56 @@ public class DetailActivity extends AppCompatActivity {
 
     private void observeViewModel() {
         ayatViewModel.getSurahDetail().observe(this, surahDetail -> {
-            if (surahDetail != null) {
-                updateToolbarTitle(surahDetail.getNamaLatin(), surahDetail.getNama());
-
-                currentSuratSebelumnya = surahDetail.getSuratSebelumnya();
-                currentSuratSelanjutnya = surahDetail.getSuratSelanjutnya();
-
-                if (currentSuratSebelumnya != null && currentSuratSebelumnya.getNomor() > 0) {
-                    buttonPreviousSurah.setText(currentSuratSebelumnya.getNamaLatin());
-                    buttonPreviousSurah.setVisibility(View.VISIBLE);
-                } else {
-                    buttonPreviousSurah.setVisibility(View.GONE);
-                }
-
-                if (currentSuratSelanjutnya != null && currentSuratSelanjutnya.getNomor() > 0) {
-                    buttonNextSurah.setText(currentSuratSelanjutnya.getNamaLatin());
-                    buttonNextSurah.setVisibility(View.VISIBLE);
-                } else {
-                    buttonNextSurah.setVisibility(View.GONE);
-                    Log.d("DetailActivity", "Surat selanjutnya tidak ditemukan atau nomor tidak valid: " + (currentSuratSelanjutnya != null ? currentSuratSelanjutnya.getNomor() : "null"));
-                }
-            } else {
-                // Jika surahDetail null, mungkin sembunyikan tombol navigasi
+            if (surahDetail == null) {
+                Log.d("DetailActivityDebug", "Observer triggered: surahDetail is NULL.");
+                // Hide navigation buttons when no data is available
                 buttonPreviousSurah.setVisibility(View.GONE);
                 buttonNextSurah.setVisibility(View.GONE);
+                return;
+            }
+
+            Log.d("DetailActivityDebug", "Observer triggered: Surah " + surahDetail.getNamaLatin());
+
+            // Process next surah data
+            if (surahDetail.getSuratSelanjutnya() != null) {
+                Log.d("DetailActivityDebug", "  -> Surat Selanjutnya DITERIMA: " + surahDetail.getSuratSelanjutnya().getNamaLatin());
+                currentSuratSelanjutnya = surahDetail.getSuratSelanjutnya();
+            } else {
+                Log.d("DetailActivityDebug", "  -> Surat Selanjutnya adalah NULL.");
+                currentSuratSelanjutnya = null;
+            }
+
+            // Process previous surah data
+            if (surahDetail.getSuratSebelumnya() != null) {
+                Log.d("DetailActivityDebug", "  -> Surat Sebelumnya DITERIMA: " + surahDetail.getSuratSebelumnya().getNamaLatin());
+                currentSuratSebelumnya = surahDetail.getSuratSebelumnya();
+            } else {
+                Log.d("DetailActivityDebug", "  -> Surat Sebelumnya adalah NULL.");
+                currentSuratSebelumnya = null;
+            }
+
+            updateToolbarTitle(surahDetail.getNamaLatin(), surahDetail.getNama());
+
+            // Update previous surah button visibility and text
+            if (currentSuratSebelumnya != null && currentSuratSebelumnya.getNomor() > 0 &&
+                currentSuratSebelumnya.getNamaLatin() != null && !currentSuratSebelumnya.getNamaLatin().isEmpty()) {
+                buttonPreviousSurah.setText(currentSuratSebelumnya.getNamaLatin());
+                buttonPreviousSurah.setVisibility(View.VISIBLE);
+            } else {
+                buttonPreviousSurah.setVisibility(View.GONE);
+                Log.d("DetailActivity", "Previous surah data invalid or not available");
+            }
+
+            // Update next surah button visibility and text
+            if (currentSuratSelanjutnya != null && currentSuratSelanjutnya.getNomor() > 0 &&
+                currentSuratSelanjutnya.getNamaLatin() != null && !currentSuratSelanjutnya.getNamaLatin().isEmpty()) {
+                buttonNextSurah.setText(currentSuratSelanjutnya.getNamaLatin());
+                buttonNextSurah.setVisibility(View.VISIBLE);
+            } else {
+                buttonNextSurah.setVisibility(View.GONE);
+                Log.d("DetailActivity", "Next surah data invalid or not available: " +
+                      (currentSuratSelanjutnya != null ? "nomor=" + currentSuratSelanjutnya.getNomor() +
+                      ", name=" + currentSuratSelanjutnya.getNamaLatin() : "null"));
             }
         });
     }

@@ -27,7 +27,7 @@
         android:layout_marginEnd="16dp"
         android:gravity="center"
         android:padding="16dp"
-        android:textColor="?android:colorError"
+        android:textColor="?attr/colorError"
         android:textSize="16sp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/buttonRefreshAyatFragment"
@@ -43,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/coba_lagi"
+        android:text="@string/label_try_again"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -76,7 +76,7 @@
                 android:padding="12dp"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:visibility="gone"
-                tools:text="Arti: Pembukaan\n\nDeskripsi: Surat Al Faatihah (Pembukaan) yang diturunkan di Mekah dan terdiri dari 7 ayat..."
+                tools:text="Arti: Pembukaan\n\nDeskripsi: Surat Al Faatihah..."
                 tools:visibility="visible" />
 
             <androidx.recyclerview.widget.RecyclerView
