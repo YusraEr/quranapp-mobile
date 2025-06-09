@@ -21,6 +21,7 @@ import com.example.quranapp.data.remote.model.TafsirResponse;
 import com.example.quranapp.utils.NetworkUtils;
 import com.example.quranapp.utils.SettingsUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -242,26 +243,42 @@ public class QuranRepository {
     public void loadAyatsBySurahNumber(int nomorSurah, boolean forceRefresh) {
         isLoadingAyat.postValue(true);
         errorMessageAyat.postValue(null);
-        executorService.execute(() -> {
-            List<Ayat> ayatsFromDb = null;
-            if (!forceRefresh) {
-                ayatsFromDb = dbHelper.getAyatsBySurahNumber(nomorSurah);
-                if (ayatsFromDb != null && !ayatsFromDb.isEmpty()) {
-                    processAyatListSpannedText(ayatsFromDb); // Proses Spanned text dari DB
-                }
-            }
 
-            if (ayatsFromDb != null && !ayatsFromDb.isEmpty() && !forceRefresh) {
-                Log.d(TAG, "Ayats for surah " + nomorSurah + " loaded from DB");
-                ayatsLiveData.postValue(ayatsFromDb);
-                isLoadingAyat.postValue(false);
-                if (NetworkUtils.isNetworkAvailable(application)) {
-                    fetchDetailSurahFromApiForInfo(nomorSurah);
+        executorService.execute(() -> {
+            if (!forceRefresh) {
+                List<Ayat> ayatsFromDb = dbHelper.getAyatsBySurahNumber(nomorSurah);
+                Surah surahDetailFromDb = dbHelper.getSurahByNomor(nomorSurah);
+
+                if (ayatsFromDb != null && !ayatsFromDb.isEmpty() && surahDetailFromDb != null) {
+                    Log.d(TAG, "Ayats and Surah Detail for " + nomorSurah + " loaded from DB");
+                    processAyatListSpannedText(ayatsFromDb);
+                    ayatsLiveData.postValue(ayatsFromDb);
+
+                    // Buat objek AyatData secara manual dari Surah yang sudah ada di DB
+                    AyatResponse.AyatData offlineAyatData = new AyatResponse.AyatData();
+                    offlineAyatData.setNomor(surahDetailFromDb.getNomor());
+                    offlineAyatData.setNama(surahDetailFromDb.getNama());
+                    offlineAyatData.setNamaLatin(surahDetailFromDb.getNamaLatin());
+                    offlineAyatData.setJumlahAyat(surahDetailFromDb.getJumlahAyat());
+                    offlineAyatData.setTempatTurun(surahDetailFromDb.getTempatTurun());
+                    offlineAyatData.setArti(surahDetailFromDb.getArti());
+                    offlineAyatData.setDeskripsi(surahDetailFromDb.getDeskripsi());
+
+                    // Set info navigasi dari objek Surah yang diambil dari DB
+                    offlineAyatData.setSuratSelanjutnya(surahDetailFromDb.getSuratSelanjutnya());
+                    offlineAyatData.setSuratSebelumnya(surahDetailFromDb.getSuratSebelumnya());
+
+                    surahDetailLiveData.postValue(offlineAyatData);
+                    isLoadingAyat.postValue(false);
+
+                    // Jika online, coba perbarui info navigasi di latar belakang
+                    if (NetworkUtils.isNetworkAvailable(application)) {
+                        fetchDetailSurahFromApiForInfo(nomorSurah);
+                    }
+                    return;
                 }
-            } else {
-                Log.d(TAG, "Ayat DB empty for surah " + nomorSurah + " or forceRefresh=true, fetching from API");
-                fetchAyatsAndDetailFromApi(nomorSurah);
             }
+            fetchAyatsAndDetailFromApi(nomorSurah);
         });
     }
 
@@ -300,8 +317,16 @@ public class QuranRepository {
                             // jika kita yakin addOrReplaceAyatsForSurah tidak mengubahnya.
                             // Atau, panggil getAyatsBySurahNumber dan processAyatListSpannedText lagi.
                             // Lebih sederhana: gunakan ayatsFromApi yang sudah diproses.
+                            Surah surahToUpdate = dbHelper.getSurahByNomor(nomorSurah);
+                            if (surahToUpdate != null) {
+                                surahToUpdate.setSuratSelanjutnya(ayatDataFromApi.getSuratSelanjutnya());
+                                surahToUpdate.setSuratSebelumnya(ayatDataFromApi.getSuratSebelumnya());
+                                // Gunakan addOrReplaceSurahs dengan list berisi satu item untuk update
+                                dbHelper.addOrReplaceSurahs(Collections.singletonList(surahToUpdate));
+                            }
+
                             mainThreadHandler.post(() -> {
-                                ayatsLiveData.setValue(ayatsFromApi); // Gunakan yang sudah diproses
+                                ayatsLiveData.setValue(ayatsFromApi);
                                 surahDetailLiveData.setValue(ayatDataFromApi);
                                 isLoadingAyat.setValue(false);
                             });
@@ -337,24 +362,15 @@ public class QuranRepository {
             @Override
             public void onResponse(Call<AyatResponse> call, Response<AyatResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    AyatResponse.AyatData ayatDataFromApi = response.body().getData();
-                    surahDetailLiveData.setValue(ayatDataFromApi);
+                    AyatResponse.AyatData dataFromApi = response.body().getData();
+                    surahDetailLiveData.postValue(dataFromApi);
 
-                    // Update the Surah object in the database with navigation information
                     executorService.execute(() -> {
-                        try {
-                            Surah surah = dbHelper.getSurahByNomor(nomorSurah);
-                            if (surah != null) {
-                                // Copy navigation information from AyatData to Surah
-                                surah.setSuratSelanjutnya(ayatDataFromApi.getSuratSelanjutnya());
-                                surah.setSuratSebelumnya(ayatDataFromApi.getSuratSebelumnya());
-
-                                // Update the Surah in the database
-                                dbHelper.addSurah(surah);
-                                Log.d(TAG, "Updated surah " + nomorSurah + " with navigation information in database");
-                            }
-                        } catch (Exception e) {
-                            Log.e(TAG, "Error updating navigation info for surah " + nomorSurah, e);
+                        Surah surahToUpdate = dbHelper.getSurahByNomor(nomorSurah);
+                        if (surahToUpdate != null) {
+                            surahToUpdate.setSuratSelanjutnya(dataFromApi.getSuratSelanjutnya());
+                            surahToUpdate.setSuratSebelumnya(dataFromApi.getSuratSebelumnya());
+                            dbHelper.addOrReplaceSurahs(Collections.singletonList(surahToUpdate));
                         }
                     });
                 }
