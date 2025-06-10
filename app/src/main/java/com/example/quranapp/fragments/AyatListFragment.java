@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.quranapp.R;
 import com.example.quranapp.adapter.AyatAdapter;
 import com.example.quranapp.data.remote.model.Ayat;
+import com.example.quranapp.data.remote.model.AyatResponse;
 import com.example.quranapp.utils.SettingsUtils;
 import com.example.quranapp.viewmodel.AyatViewModel;
 
@@ -43,13 +44,23 @@ public class AyatListFragment extends Fragment {
     private boolean isAudioPlaying = false;
     private boolean isManuallyStopped = true;
     private List<Ayat> currentAyatList = new ArrayList<>();
+    private Integer pendingScrollToAyat = null;
+    private com.example.quranapp.data.remote.model.AyatResponse.AyatData currentSurahHeader = null;
 
     // Variabel UI
     private ProgressBar progressBarAyat;
-    private TextView textViewErrorAyat, textViewSurahNameHeader, textViewSurahArabicHeader;
+    private TextView textViewErrorAyat;
     private Button buttonRefreshAyat;
-    private TextView textViewSurahInfo;
     private ImageView imageViewError;
+
+    public interface OnScrollButtonVisibilityListener {
+        void onScrollButtonVisibilityChanged(boolean visible);
+    }
+    private OnScrollButtonVisibilityListener scrollButtonVisibilityListener;
+
+    public void setOnScrollButtonVisibilityListener(OnScrollButtonVisibilityListener listener) {
+        this.scrollButtonVisibilityListener = listener;
+    }
 
     public AyatListFragment() {
 
@@ -80,11 +91,23 @@ public class AyatListFragment extends Fragment {
         progressBarAyat = view.findViewById(R.id.progressBarAyatFragment);
         textViewErrorAyat = view.findViewById(R.id.textViewErrorAyatFragment);
         buttonRefreshAyat = view.findViewById(R.id.buttonRefreshAyatFragment);
-        textViewSurahInfo = view.findViewById(R.id.textViewSurahInfoDetail);
-        textViewSurahNameHeader = view.findViewById(R.id.textViewSurahNameHeader);
-        textViewSurahArabicHeader = view.findViewById(R.id.textViewSurahArabicHeader);
         imageViewError = view.findViewById(R.id.imageViewError);
         setupRecyclerView();
+
+        recyclerViewAyats.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (scrollButtonVisibilityListener != null) {
+                    if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
+                        scrollButtonVisibilityListener.onScrollButtonVisibilityChanged(true);
+                    } else if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        scrollButtonVisibilityListener.onScrollButtonVisibilityChanged(false);
+                    }
+                }
+            }
+        });
+
         return view;
     }
 
@@ -147,7 +170,6 @@ public class AyatListFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-
         AyatAdapter.OnAyatClickListener ayatClickListener = (ayat, holder) -> {
             Log.d("AyatListFragment", "Ayat clicked: " + ayat.getNomorAyat());
             holder.toggleTafsirVisibility();
@@ -155,6 +177,7 @@ public class AyatListFragment extends Fragment {
 
         AyatAdapter.OnPlayAudioClickListener playAudioClickListener = this::handlePlayAudioClick;
 
+        // Update to use List<Object> instead of List<Ayat>
         ayatAdapter = new AyatAdapter(new ArrayList<>(), ayatClickListener, playAudioClickListener);
 
         recyclerViewAyats.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -188,28 +211,24 @@ public class AyatListFragment extends Fragment {
             }
         });
 
+        ayatViewModel.getSurahDetail().observe(getViewLifecycleOwner(), surahDetail -> {
+            if (surahDetail != null) {
+                currentSurahHeader = surahDetail;
+                if (!currentAyatList.isEmpty()) {
+                    updateAdapterWithHeaderAndAyat();
+                }
+            }
+        });
+
         ayatViewModel.getAyats().observe(getViewLifecycleOwner(), ayats -> {
             if (ayats != null && !ayats.isEmpty()) {
                 currentAyatList.clear();
                 currentAyatList.addAll(ayats);
-                ayatAdapter.updateAyats(ayats);
-                recyclerViewAyats.setVisibility(View.VISIBLE);
+                if (currentSurahHeader != null) {
+                    updateAdapterWithHeaderAndAyat();
+                }
             } else {
                 recyclerViewAyats.setVisibility(View.GONE);
-            }
-        });
-
-        ayatViewModel.getSurahDetail().observe(getViewLifecycleOwner(), surahDetail -> {
-            if (surahDetail != null) {
-                String info = "";
-                if (surahDetail.getArti() != null && !surahDetail.getArti().isEmpty()) info += "Arti: " + surahDetail.getArti() + "\n\n";
-                if (surahDetail.getDeskripsi() != null && !surahDetail.getDeskripsi().isEmpty()) info += "Deskripsi:\n" + android.text.Html.fromHtml(surahDetail.getDeskripsi()).toString();
-                textViewSurahInfo.setText(info);
-                textViewSurahArabicHeader.setText(surahDetail.getNama());
-                textViewSurahNameHeader.setText(surahDetail.getNamaLatin());
-                textViewSurahInfo.setVisibility(View.VISIBLE);
-            } else {
-                textViewSurahInfo.setVisibility(View.GONE);
             }
         });
 
@@ -220,6 +239,17 @@ public class AyatListFragment extends Fragment {
                 ayatAdapter.updateTafsir(new ArrayList<>());
             }
         });
+    }
+
+    private void updateAdapterWithHeaderAndAyat() {
+        List<Object> items = new ArrayList<>();
+        items.add(currentSurahHeader);
+        items.addAll(currentAyatList);
+        ayatAdapter.updateItems(items);
+        recyclerViewAyats.setVisibility(View.VISIBLE);
+        if (pendingScrollToAyat != null) {
+            scrollToAyat(pendingScrollToAyat);
+        }
     }
 
     private void setupEventListeners() {
@@ -295,5 +325,16 @@ public class AyatListFragment extends Fragment {
             stopAndResetAudioState();
         }
     }
-}
 
+    public void scrollToAyat(int ayatNumber) {
+        Log.d("AyatListFragment", "scrollToAyat called with ayatNumber: " + ayatNumber);
+        if (recyclerViewAyats != null && ayatAdapter != null && ayatAdapter.getItemCount() > 0) {
+            int position = ayatNumber;
+            recyclerViewAyats.smoothScrollToPosition(position); // Gunakan smoothScrollToPosition untuk efek animasi scroll yang mulus
+            pendingScrollToAyat = null;
+        } else {
+            pendingScrollToAyat = ayatNumber;
+            Log.d("AyatListFragment", "Data belum siap, pending scroll ke ayat: " + ayatNumber);
+        }
+    }
+}

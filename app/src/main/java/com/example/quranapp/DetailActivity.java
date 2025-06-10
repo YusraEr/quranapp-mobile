@@ -26,7 +26,7 @@ public class DetailActivity extends AppCompatActivity {
     private String surahNameLatin;
     private AyatViewModel ayatViewModel;
     private TextView toolbarTitle;
-    private FloatingActionButton buttonPreviousSurah, buttonNextSurah, fabGoToAyat;
+    private FloatingActionButton buttonPreviousSurah, buttonNextSurah, fabGoToAyat, fabToTheTop;
 
     private SuratNavInfo currentSuratSebelumnya = null;
     private SuratNavInfo currentSuratSelanjutnya = null;
@@ -48,6 +48,7 @@ public class DetailActivity extends AppCompatActivity {
         buttonPreviousSurah = findViewById(R.id.fabPreviousSurah);
         buttonNextSurah = findViewById(R.id.fabNextSurah);
         fabGoToAyat = findViewById(R.id.fabGoToAyat);
+        fabToTheTop = findViewById(R.id.fabToTheTop);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -71,7 +72,60 @@ public class DetailActivity extends AppCompatActivity {
         observeViewModel();
         setupNavigationButtonListeners();
 
+        fabGoToAyat.setOnClickListener(v -> showGoToAyatDialog());
+        fabToTheTop.setOnClickListener(v -> scrollToTopAyatList());
+
         ayatViewModel.initialLoadAyats(surahNumber);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        AyatListFragment fragment = (AyatListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container_detail);
+        if (fragment != null) {
+            fragment.setOnScrollButtonVisibilityListener(visible -> setFabButtonsVisibility(visible));
+        }
+    }
+
+    private void setFabButtonsVisibility(boolean visible) {
+        float targetAlpha = visible ? 1f : 0f;
+        int targetVisibility = visible ? View.VISIBLE : View.GONE;
+        int duration = 250;
+
+        // Only show next/prev if data is valid (not null twice)
+        boolean showPrev = currentSuratSebelumnya != null && currentSuratSebelumnya.getNomor() > 0 &&
+                currentSuratSebelumnya.getNamaLatin() != null && !currentSuratSebelumnya.getNamaLatin().isEmpty();
+        boolean showNext = currentSuratSelanjutnya != null && currentSuratSelanjutnya.getNomor() > 0 &&
+                currentSuratSelanjutnya.getNamaLatin() != null && !currentSuratSelanjutnya.getNamaLatin().isEmpty();
+
+        if (showPrev) {
+            animateFab(buttonPreviousSurah, targetAlpha, targetVisibility, duration);
+        } else {
+            buttonPreviousSurah.setVisibility(View.GONE);
+        }
+        if (showNext) {
+            animateFab(buttonNextSurah, targetAlpha, targetVisibility, duration);
+        } else {
+            buttonNextSurah.setVisibility(View.GONE);
+        }
+        animateFab(fabGoToAyat, targetAlpha, targetVisibility, duration);
+        animateFab(fabToTheTop, targetAlpha, targetVisibility, duration);
+    }
+
+    private void animateFab(View fab, float targetAlpha, int targetVisibility, int duration) {
+        if (fab.getVisibility() != View.VISIBLE && targetVisibility == View.VISIBLE) {
+            fab.setAlpha(0f);
+            fab.setVisibility(View.VISIBLE);
+        }
+        fab.animate()
+            .alpha(targetAlpha)
+            .setDuration(duration)
+            .withEndAction(() -> {
+                if (targetVisibility == View.GONE) {
+                    fab.setVisibility(View.GONE);
+                }
+            })
+            .start();
     }
 
     private void updateToolbarTitle(String namaLatin, String namaArab) {
@@ -164,6 +218,44 @@ public class DetailActivity extends AppCompatActivity {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container_detail, ayatListFragment);
         transaction.commit();
+    }
+
+    private void showGoToAyatDialog() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle("Go to Ayat");
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        input.setHint("Enter ayat number");
+        builder.setView(input);
+        builder.setPositiveButton("Go", (dialog, which) -> {
+            String value = input.getText().toString();
+            if (!value.isEmpty()) {
+                int ayatNumber = Integer.parseInt(value);
+                goToAyatInFragment(ayatNumber);
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void goToAyatInFragment(int ayatNumber) {
+        // Coba ambil fragment dengan tag, fallback ke byId
+        AyatListFragment fragment = (AyatListFragment) getSupportFragmentManager().findFragmentByTag("AyatListFragment");
+        if (fragment == null) {
+            fragment = (AyatListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container_detail);
+        }
+        if (fragment != null && fragment.isAdded()) {
+            fragment.scrollToAyat(ayatNumber);
+        } else {
+            Log.e("DetailActivity", "AyatListFragment not found or not attached");
+        }
+    }
+
+    private void scrollToTopAyatList() {
+        AyatListFragment fragment = (AyatListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container_detail);
+        if (fragment != null && fragment.isAdded()) {
+            fragment.scrollToAyat(1);
+        }
     }
 
     @Override

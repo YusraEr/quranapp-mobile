@@ -69,9 +69,22 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="24dp"
+        android:layout_marginStart="100dp"
         android:contentDescription="Go to Ayat"
         app:srcCompat="@drawable/ic_search"
         app:backgroundTint="@color/colorSecondaryContainerDark"
+        app:tint="@android:color/white" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabToTheTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginEnd="100dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="To The Top"
+        app:srcCompat="@drawable/ic_arrow_upward"
+        app:backgroundTint="@color/colorPrimaryLight"
         app:tint="@android:color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

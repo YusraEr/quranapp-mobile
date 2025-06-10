@@ -8,8 +8,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.quranapp.data.QuranRepository;
 import com.example.quranapp.data.remote.model.Ayat;
-import com.example.quranapp.data.remote.model.AyatResponse; // Untuk info detail surah
-import com.example.quranapp.data.remote.model.TafsirResponse; // Untuk data tafsir
+import com.example.quranapp.data.remote.model.AyatResponse;
+import com.example.quranapp.data.remote.model.TafsirResponse;
 
 import java.util.List;
 
@@ -62,14 +62,6 @@ public class AyatViewModel extends AndroidViewModel {
 
     public LiveData<TafsirResponse.TafsirData> getTafsir() {
         return tafsirLiveData;
-    }
-
-    public LiveData<Boolean> getIsLoadingTafsir() {
-        return isLoadingTafsir;
-    }
-
-    public LiveData<String> getErrorMessageTafsir() {
-        return errorMessageTafsir;
     }
 
     public void refreshAyats() {

@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         buttonChangeTheme.setOnClickListener(v -> {
             if (ThemeUtils.isDarkTheme(this)) {
                 ThemeUtils.setLightTheme(this);
-                buttonChangeTheme.setImageResource(R.drawable.ic_sun);
+                buttonChangeTheme.setImageResource(R.drawable.ic_theme);
             } else {
                 ThemeUtils.setDarkTheme(this);
                 buttonChangeTheme.setImageResource(R.drawable.ic_moon);
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
             buttonChangeTheme.setImageResource(R.drawable.ic_moon);
         } else {
             // In light theme, show the moon icon (to switch to dark)
-            buttonChangeTheme.setImageResource(R.drawable.ic_sun);
+            buttonChangeTheme.setImageResource(R.drawable.ic_theme);
         }
     }
 

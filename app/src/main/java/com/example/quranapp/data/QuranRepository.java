@@ -35,26 +35,26 @@ import retrofit2.Response;
 public class QuranRepository {
     private static final String TAG = "QuranRepository";
 
-    private QuranDbHelper dbHelper;
-    private QuranApiService quranApiService;
-    private ExecutorService executorService;
-    private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-    private Application application;
-    private MutableLiveData<String> fullAudioUrlLiveData = new MutableLiveData<>();
-    private MutableLiveData<String> fullAudioErrorLiveData = new MutableLiveData<>();
+    private final QuranDbHelper dbHelper;
+    private final QuranApiService quranApiService;
+    private final ExecutorService executorService;
+    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+    private final Application application;
+    private final MutableLiveData<String> fullAudioUrlLiveData = new MutableLiveData<>();
+    private final MutableLiveData<String> fullAudioErrorLiveData = new MutableLiveData<>();
 
-    private MutableLiveData<List<Surah>> allSurahsLiveData = new MutableLiveData<>();
-    private MutableLiveData<Boolean> isLoadingSurah = new MutableLiveData<>(false);
-    private MutableLiveData<String> errorMessageSurah = new MutableLiveData<>();
+    private final MutableLiveData<List<Surah>> allSurahsLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isLoadingSurah = new MutableLiveData<>(false);
+    private final MutableLiveData<String> errorMessageSurah = new MutableLiveData<>();
 
-    private MutableLiveData<List<Ayat>> ayatsLiveData = new MutableLiveData<>();
-    private MutableLiveData<Boolean> isLoadingAyat = new MutableLiveData<>(false);
-    private MutableLiveData<String> errorMessageAyat = new MutableLiveData<>();
-    private MutableLiveData<AyatResponse.AyatData> surahDetailLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<Ayat>> ayatsLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isLoadingAyat = new MutableLiveData<>(false);
+    private final MutableLiveData<String> errorMessageAyat = new MutableLiveData<>();
+    private final MutableLiveData<AyatResponse.AyatData> surahDetailLiveData = new MutableLiveData<>();
 
-    private MutableLiveData<TafsirResponse.TafsirData> tafsirLiveData = new MutableLiveData<>();
-    private MutableLiveData<Boolean> isLoadingTafsir = new MutableLiveData<>(false);
-    private MutableLiveData<String> errorMessageTafsir = new MutableLiveData<>();
+    private final MutableLiveData<TafsirResponse.TafsirData> tafsirLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isLoadingTafsir = new MutableLiveData<>(false);
+    private final MutableLiveData<String> errorMessageTafsir = new MutableLiveData<>();
     public LiveData<String> getFullAudioUrlLiveData() { return fullAudioUrlLiveData; }
     public LiveData<String> getFullAudioErrorLiveData() { return fullAudioErrorLiveData; }
 
@@ -66,12 +66,10 @@ public class QuranRepository {
         this.executorService = Executors.newFixedThreadPool(4);
     }
 
-    // Helper method untuk memproses teksLatin menjadi Spanned
     private void processAyatListSpannedText(List<Ayat> ayatList) {
         if (ayatList != null) {
             for (Ayat ayat : ayatList) {
                 if (ayat.getTeksLatin() != null && !ayat.getTeksLatin().isEmpty()) {
-                    // Lakukan parsing Html.fromHtml di sini (background thread)
                     Spanned spanned = Html.fromHtml(ayat.getTeksLatin(), Html.FROM_HTML_MODE_LEGACY);
                     ayat.setTeksLatinSpanned(spanned);
                 }
@@ -84,7 +82,6 @@ public class QuranRepository {
             return;
         }
 
-        // Reset error sebelumnya
         fullAudioErrorLiveData.postValue(null);
 
         quranApiService.getDetailSurah(nomorSurah).enqueue(new Callback<AyatResponse>() {
@@ -376,7 +373,7 @@ public class QuranRepository {
             }
             @Override
             public void onFailure(Call<AyatResponse> call, Throwable t) {
-                // Failure handling is already implemented in fetchAyatsAndDetailFromApi
+
             }
         });
     }
