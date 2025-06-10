@@ -22,6 +22,7 @@ import com.example.quranapp.fragments.SurahListFragment;
 import com.example.quranapp.utils.SettingsUtils;
 import com.example.quranapp.utils.ThemeUtils;
 import com.example.quranapp.viewmodel.SurahViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView textViewError;
     private Button buttonRefresh;
-    private Button buttonChangeTheme;
+    private FloatingActionButton buttonChangeTheme;
     private SurahViewModel surahViewModel;
 
     private int selectedReciterIndex = -1; // Untuk menyimpan pilihan sementara di dialog
@@ -175,29 +176,38 @@ public class MainActivity extends AppCompatActivity {
         buttonChangeTheme.setOnClickListener(v -> {
             if (ThemeUtils.isDarkTheme(this)) {
                 ThemeUtils.setLightTheme(this);
+                // After switching to light theme, show the moon icon (to switch to dark)
+                buttonChangeTheme.setImageResource(R.drawable.ic_sun);
             } else {
                 ThemeUtils.setDarkTheme(this);
+                buttonChangeTheme.setImageResource(R.drawable.ic_moon);
+                // After switching to dark theme, show the sun icon (to switch to light)
             }
         });
+
+        // Set the initial icon based on the current theme state
+        updateThemeIcon();
     }
 
-    // Metode ini bisa dipanggil oleh fragment jika fragment yang menangani tombol refresh
-    public void showLoading() {
-        progressBar.setVisibility(View.VISIBLE);
-        textViewError.setVisibility(View.GONE);
-        buttonRefresh.setVisibility(View.GONE);
+    /**
+     * Updates the theme toggle button icon based on the current theme state.
+     * Shows sun icon in dark mode and moon icon in light mode.
+     */
+    private void updateThemeIcon() {
+        if (ThemeUtils.isDarkTheme(this)) {
+            // In dark theme, show the sun icon (to switch to light)
+            buttonChangeTheme.setImageResource(R.drawable.ic_moon);
+        } else {
+            // In light theme, show the moon icon (to switch to dark)
+            buttonChangeTheme.setImageResource(R.drawable.ic_sun);
+        }
     }
 
-    public void showError(String message) {
-        progressBar.setVisibility(View.GONE);
-        textViewError.setVisibility(View.VISIBLE);
-        textViewError.setText(message);
-        buttonRefresh.setVisibility(View.VISIBLE);
-    }
-
-    public void hideErrorAndLoading() {
-        progressBar.setVisibility(View.GONE);
-        textViewError.setVisibility(View.GONE);
-        buttonRefresh.setVisibility(View.GONE);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Update icon when activity resumes in case theme changed elsewhere
+        updateThemeIcon();
     }
 }
+
