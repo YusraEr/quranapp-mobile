@@ -25,20 +25,20 @@ Aplikasi Al-Quran untuk platform Android yang dikembangkan menggunakan Java. Apl
 
 ## Screenshot
 
-![image 1](documentation/lightmode/image (1).png)
-![image 2](documentation/lightmode/image (2).png)
-![image 3](documentation/lightmode/image (3).png)
-![image 4](documentation/lightmode/image (4).png)
-![image 5](documentation/lightmode/image (5).png)
-![image 6](documentation/lightmode/image (6).png)
-![image 7](documentation/lightmode/image (7).png)
+![image 1](documentation/lightmode/image%(1).png)
+![image 2](documentation/lightmode/image%(2).png)
+![image 3](documentation/lightmode/image%(3).png)
+![image 4](documentation/lightmode/image%(4).png)
+![image 5](documentation/lightmode/image%(5).png)
+![image 6](documentation/lightmode/image%(6).png)
+![image 7](documentation/lightmode/image%(7).png)
 
-![image 1 darkmode](documentation/darkmode/image (1).png)
-![image 2 darkmode](documentation/darkmode/image (2).png)
-![image 3 darkmode](documentation/darkmode/image (3).png)
-![image 4 darkmode](documentation/darkmode/image (4).png)
-![image 5 darkmode](documentation/darkmode/image (5).png)
-![image 6 darkmode](documentation/darkmode/image (6).png)
+![image 1 darkmode](documentation/darkmode/image%(1).png)
+![image 2 darkmode](documentation/darkmode/image%(2).png)
+![image 3 darkmode](documentation/darkmode/image%(3).png)
+![image 4 darkmode](documentation/darkmode/image%(4).png)
+![image 5 darkmode](documentation/darkmode/image%(5).png)
+![image 6 darkmode](documentation/darkmode/image%(6).png)
 
 ## Teknologi
 
