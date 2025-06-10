@@ -25,20 +25,40 @@ Aplikasi Al-Quran untuk platform Android yang dikembangkan menggunakan Java. Apl
 
 ## Screenshot
 
-<img src="documentation/lightmode/image%20(1).jpg" alt="image 1 lightmode" width="300"/>
-<img src="documentation/lightmode/image%20(2).jpg" alt="image 2 lightmode" width="300"/>
-<img src="documentation/lightmode/image%20(3).jpg" alt="image 3 lightmode" width="300"/>
-<img src="documentation/lightmode/image%20(4).jpg" alt="image 4 lightmode" width="300"/>
-<img src="documentation/lightmode/image%20(5).jpg" alt="image 5 lightmode" width="300"/>
-<img src="documentation/lightmode/image%20(6).jpg" alt="image 6 lightmode" width="300"/>
-<img src="documentation/lightmode/image%20(7).jpg" alt="image 7 lightmode" width="300"/>_
+<div align="center">
 
-<img src="documentation/darkmode/image%20(1).jpg" alt="image 1 darkmode" width="300"/>
-<img src="documentation/darkmode/image%20(2).jpg" alt="image 2 darkmode" width="300"/>
-<img src="documentation/darkmode/image%20(3).jpg" alt="image 3 darkmode" width="300"/>
-<img src="documentation/darkmode/image%20(4).jpg" alt="image 4 darkmode" width="300"/>
-<img src="documentation/darkmode/image%20(5).jpg" alt="image 5 darkmode" width="300"/>
-<img src="documentation/darkmode/image%20(6).jpg" alt="image 6 darkmode" width="300"/>
+### Mode Terang
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+    <img src="documentation/lightmode/image%20(1).jpg" alt="image 1 lightmode" width="250"/>
+    <img src="documentation/lightmode/image%20(2).jpg" alt="image 2 lightmode" width="250"/>
+    <img src="documentation/lightmode/image%20(3).jpg" alt="image 3 lightmode" width="250"/>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px;">
+    <img src="documentation/lightmode/image%20(4).jpg" alt="image 4 lightmode" width="250"/>
+    <img src="documentation/lightmode/image%20(5).jpg" alt="image 5 lightmode" width="250"/>
+    <img src="documentation/lightmode/image%20(6).jpg" alt="image 6 lightmode" width="250"/>
+</div>
+
+<div style="display: flex; justify-content: center; margin-top: 10px;">
+    <img src="documentation/lightmode/image%20(7).jpg" alt="image 7 lightmode" width="250"/>
+</div>
+
+### Mode Gelap
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;">
+    <img src="documentation/darkmode/image%20(1).jpg" alt="image 1 darkmode" width="250"/>
+    <img src="documentation/darkmode/image%20(2).jpg" alt="image 2 darkmode" width="250"/>
+    <img src="documentation/darkmode/image%20(3).jpg" alt="image 3 darkmode" width="250"/>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px;">
+    <img src="documentation/darkmode/image%20(4).jpg" alt="image 4 darkmode" width="250"/>
+    <img src="documentation/darkmode/image%20(5).jpg" alt="image 5 darkmode" width="250"/>
+    <img src="documentation/darkmode/image%20(6).jpg" alt="image 6 darkmode" width="250"/>
+</div>
+
+</div>
+
 ## Teknologi
 
 ### Bahasa Pemrograman
