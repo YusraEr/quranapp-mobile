@@ -235,7 +235,27 @@ public class AyatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             if (ayat.getAudio() != null && !ayat.getAudio().isEmpty()) {
                 buttonPlayAudioAyat.setVisibility(View.VISIBLE);
+
+                // Set icon based on playback state
+                if (ayat.getNomorAyat() == currentlyPlayingAyatNomor) {
+                    if (isAudioLoading) {
+                        // Show loading icon
+                        buttonPlayAudioAyat.setImageResource(R.drawable.ic_hourglass_empty);
+                    } else if (isAudioPlaying) {
+                        // Show pause icon
+                        buttonPlayAudioAyat.setImageResource(R.drawable.ic_pause_circle);
+                    } else {
+                        // Show play icon
+                        buttonPlayAudioAyat.setImageResource(R.drawable.ic_play_arrow);
+                    }
+                } else {
+                    // Default state - show play icon
+                    buttonPlayAudioAyat.setImageResource(R.drawable.ic_play_arrow);
+                }
+
                 buttonPlayAudioAyat.setOnClickListener(v -> audioClickListener.onPlayAudioClick(ayat));
+            } else {
+                buttonPlayAudioAyat.setVisibility(View.GONE);
             }
         }
 
