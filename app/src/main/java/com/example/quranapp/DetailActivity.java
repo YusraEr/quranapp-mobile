@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -223,64 +224,94 @@ public class DetailActivity extends AppCompatActivity {
 
     private void showGoToAyatDialog() {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setTitle("Go to Ayat");
 
-        String message = "Masukkan nomor ayat (1-" + totalAyat + ")";
-        builder.setMessage(message);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_go_to_ayat, null);
+        builder.setView(dialogView);
 
-        final android.widget.EditText input = new android.widget.EditText(this);
-        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        input.setHint("Enter ayat number");
-        builder.setView(input);
+        com.google.android.material.textfield.TextInputLayout inputLayout = dialogView.findViewById(R.id.input_layout);
+        com.google.android.material.textfield.TextInputEditText editAyatNumber = dialogView.findViewById(R.id.edit_ayat_number);
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
+        Button btnGo = dialogView.findViewById(R.id.btn_go);
 
-        builder.setPositiveButton("Go", (dialog, which) -> {
-            String value = input.getText().toString();
+        String rangeInfo = String.format("Masukkan nomor ayat (1 - %d)", totalAyat);
+        inputLayout.setHelperText(rangeInfo);
+
+        final android.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnGo.setOnClickListener(v -> {
+            String value = editAyatNumber.getText().toString();
             if (!value.isEmpty()) {
-                int ayatNumber = Integer.parseInt(value);
+                try {
+                    int ayatNumber = Integer.parseInt(value);
 
-                if (ayatNumber < 1 || ayatNumber > totalAyat) {
-                    Toast.makeText(this, "Nomor ayat harus antara 1 dan " + totalAyat, Toast.LENGTH_SHORT).show();
+                    // Validasi nomor ayat
+                    if (ayatNumber < 1 || ayatNumber > totalAyat) {
+                        inputLayout.setError("Nomor ayat harus antara 1 dan " + totalAyat);
+                    } else {
+                        dialog.dismiss();
+                        goToAyatInFragment(ayatNumber);
+                    }
+                } catch (NumberFormatException e) {
+                    inputLayout.setError("Masukkan angka yang valid");
+                }
+            } else {
+                inputLayout.setError("Silakan masukkan nomor ayat");
+            }
+        });
+
+        editAyatNumber.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                inputLayout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                if (!s.toString().isEmpty()) {
+                    try {
+                        int ayatNumber = Integer.parseInt(s.toString());
+                        if (ayatNumber < 1 || ayatNumber > totalAyat) {
+                            inputLayout.setError("Nomor ayat harus antara 1 dan " + totalAyat);
+                            btnGo.setEnabled(false);
+                        } else {
+                            inputLayout.setError(null);
+                            btnGo.setEnabled(true);
+                        }
+                    } catch (NumberFormatException e) {
+                        inputLayout.setError("Masukkan angka yang valid");
+                        btnGo.setEnabled(false);
+                    }
                 } else {
-                    goToAyatInFragment(ayatNumber);
+                    btnGo.setEnabled(false);
                 }
             }
         });
 
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
-    }
-
-    private void goToAyatInFragment(int ayatNumber) {
-        if (ayatNumber < 1 || ayatNumber > totalAyat) {
-            Log.e("DetailActivity", "Ayat number out of bounds: " + ayatNumber + ", total ayat: " + totalAyat);
-            Toast.makeText(this, "Nomor ayat harus antara 1 dan " + totalAyat, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        AyatListFragment fragment = (AyatListFragment) getSupportFragmentManager().findFragmentByTag("AyatListFragment");
-        if (fragment == null) {
-            fragment = (AyatListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container_detail);
-        }
-        if (fragment != null && fragment.isAdded()) {
-            fragment.scrollToAyat(ayatNumber);
-        } else {
-            Log.e("DetailActivity", "AyatListFragment not found or not attached");
-        }
+        editAyatNumber.requestFocus();
+        android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(android.view.inputmethod.InputMethodManager.SHOW_FORCED, 0);
     }
 
     private void scrollToTopAyatList() {
         AyatListFragment fragment = (AyatListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container_detail);
-        if (fragment != null && fragment.isAdded()) {
+        if (fragment != null) {
             fragment.scrollToAyat(1);
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
+    private void goToAyatInFragment(int ayatNumber) {
+        AyatListFragment fragment = (AyatListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container_detail);
+        if (fragment != null) {
+            fragment.scrollToAyat(ayatNumber);
         }
-        return super.onOptionsItemSelected(item);
     }
 }
+
