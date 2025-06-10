@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
@@ -31,7 +32,6 @@ public class DetailActivity extends AppCompatActivity {
 
     private SuratNavInfo currentSuratSebelumnya = null;
     private SuratNavInfo currentSuratSelanjutnya = null;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +86,6 @@ public class DetailActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(title);
         }
     }
-
 
     private void observeViewModel() {
         ayatViewModel.getSurahDetail().observe(this, surahDetail -> {

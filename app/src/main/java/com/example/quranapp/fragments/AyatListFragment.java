@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.quranapp.R;
 import com.example.quranapp.adapter.AyatAdapter;
 import com.example.quranapp.data.remote.model.Ayat;
-import com.example.quranapp.data.remote.model.Tafsir;
 import com.example.quranapp.utils.SettingsUtils;
 import com.example.quranapp.viewmodel.AyatViewModel;
 
@@ -46,10 +46,10 @@ public class AyatListFragment extends Fragment {
 
     // Variabel UI
     private ProgressBar progressBarAyat;
-    private TextView textViewErrorAyat, textViewSurahNameHeader,textViewSurahArabicHeader;
+    private TextView textViewErrorAyat, textViewSurahNameHeader, textViewSurahArabicHeader;
     private Button buttonRefreshAyat;
     private TextView textViewSurahInfo;
-
+    private ImageView imageViewError;
 
     public AyatListFragment() {
 
@@ -83,6 +83,7 @@ public class AyatListFragment extends Fragment {
         textViewSurahInfo = view.findViewById(R.id.textViewSurahInfoDetail);
         textViewSurahNameHeader = view.findViewById(R.id.textViewSurahNameHeader);
         textViewSurahArabicHeader = view.findViewById(R.id.textViewSurahArabicHeader);
+        imageViewError = view.findViewById(R.id.imageViewError);
         setupRecyclerView();
         return view;
     }
@@ -146,18 +147,14 @@ public class AyatListFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        // --- PERBAIKAN DI SINI: Deklarasikan listener sebelum digunakan ---
 
-        // 1. Deklarasikan listener untuk klik pada item (toggle tafsir)
         AyatAdapter.OnAyatClickListener ayatClickListener = (ayat, holder) -> {
             Log.d("AyatListFragment", "Ayat clicked: " + ayat.getNomorAyat());
             holder.toggleTafsirVisibility();
         };
 
-        // 2. Deklarasikan listener untuk klik pada tombol audio
         AyatAdapter.OnPlayAudioClickListener playAudioClickListener = this::handlePlayAudioClick;
 
-        // 3. Gunakan variabel listener yang sudah dibuat di konstruktor adapter
         ayatAdapter = new AyatAdapter(new ArrayList<>(), ayatClickListener, playAudioClickListener);
 
         recyclerViewAyats.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -165,13 +162,13 @@ public class AyatListFragment extends Fragment {
     }
 
     private void setupObservers() {
-        // ... (Implementasi observer tidak berubah dari versi sebelumnya)
         ayatViewModel.getIsLoadingAyat().observe(getViewLifecycleOwner(), isLoading -> {
             if (isLoading != null && isLoading && ayatAdapter.getItemCount() == 0) {
                 progressBarAyat.setVisibility(View.VISIBLE);
                 recyclerViewAyats.setVisibility(View.GONE);
                 textViewErrorAyat.setVisibility(View.GONE);
                 buttonRefreshAyat.setVisibility(View.GONE);
+                imageViewError.setVisibility(View.GONE);
             } else {
                 progressBarAyat.setVisibility(View.GONE);
             }
@@ -182,10 +179,12 @@ public class AyatListFragment extends Fragment {
                 textViewErrorAyat.setText(errorMessage);
                 textViewErrorAyat.setVisibility(View.VISIBLE);
                 buttonRefreshAyat.setVisibility(View.VISIBLE);
+                imageViewError.setVisibility(View.VISIBLE);
                 recyclerViewAyats.setVisibility(View.GONE);
             } else {
                 textViewErrorAyat.setVisibility(View.GONE);
                 buttonRefreshAyat.setVisibility(View.GONE);
+                imageViewError.setVisibility(View.GONE);
             }
         });
 
@@ -227,7 +226,6 @@ public class AyatListFragment extends Fragment {
         buttonRefreshAyat.setOnClickListener(v -> {
             if (surahNumber > 0) {
                 ayatViewModel.refreshAyats();
-                ayatViewModel.loadTafsirForSurah(surahNumber);
             }
         });
     }
@@ -264,7 +262,7 @@ public class AyatListFragment extends Fragment {
 
         try {
             currentlyPlayingAyatNomor = ayat.getNomorAyat();
-            ayatAdapter.updatePlaybackState(currentlyPlayingAyatNomor, false, true); // Tampilkan loading
+            ayatAdapter.updatePlaybackState(currentlyPlayingAyatNomor, false, true);
 
             mediaPlayer.reset();
             mediaPlayer.setDataSource(audioUrl);

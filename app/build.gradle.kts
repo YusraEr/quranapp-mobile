@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.swiperefreshlayout)
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
