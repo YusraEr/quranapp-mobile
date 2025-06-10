@@ -1,4 +1,4 @@
-package com.example.quranapp.data.remote.model; // Sesuaikan dengan package name Anda
+package com.example.quranapp.data.remote.model;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
@@ -14,7 +14,6 @@ public class TafsirResponse {
     @SerializedName("data")
     private TafsirData data;
 
-    // Getter dan Setter
     public int getCode() {
         return code;
     }
@@ -39,19 +38,18 @@ public class TafsirResponse {
         this.data = data;
     }
 
-    // Kelas inner untuk bagian "data" dalam respons tafsir
     public static class TafsirData {
         @SerializedName("nomor")
-        private int nomor; // Nomor surah
+        private int nomor;
 
         @SerializedName("nama")
-        private String nama; // Nama Arab surah
+        private String nama;
 
         @SerializedName("namaLatin")
-        private String namaLatin; // Nama Latin surah
+        private String namaLatin;
 
         @SerializedName("jumlahAyat")
-        private int jumlahAyat; // Jumlah ayat dalam surah
+        private int jumlahAyat;
 
         @SerializedName("tempatTurun")
         private String tempatTurun;
@@ -66,9 +64,8 @@ public class TafsirResponse {
         private Surah.AudioUrl audioFull;
 
         @SerializedName("tafsir")
-        private List<Tafsir> tafsir; // List dari Tafsir.java
+        private List<Tafsir> tafsir;
 
-        // Getter dan Setter untuk TafsirData
         public int getNomor() {
             return nomor;
         }

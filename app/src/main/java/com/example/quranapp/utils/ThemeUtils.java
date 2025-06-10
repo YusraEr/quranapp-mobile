@@ -1,4 +1,4 @@
-package com.example.quranapp.utils; // Ganti dengan package name aplikasi Anda
+package com.example.quranapp.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,7 +10,7 @@ public class ThemeUtils {
     private static final String KEY_THEME = "app_theme";
     private static final int LIGHT_THEME = AppCompatDelegate.MODE_NIGHT_NO;
     private static final int DARK_THEME = AppCompatDelegate.MODE_NIGHT_YES;
-    private static final int DEFAULT_THEME = LIGHT_THEME; // Atau AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+    private static final int DEFAULT_THEME = LIGHT_THEME;
 
     public static void applyTheme(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -35,13 +35,5 @@ public class ThemeUtils {
         editor.putInt(KEY_THEME, DARK_THEME);
         editor.apply();
         AppCompatDelegate.setDefaultNightMode(DARK_THEME);
-    }
-
-    // Opsional: Jika Anda ingin tombol untuk tema sistem
-    public static void setFollowSystemTheme(Context context) {
-        SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
-        editor.putInt(KEY_THEME, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-        editor.apply();
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
     }
 }

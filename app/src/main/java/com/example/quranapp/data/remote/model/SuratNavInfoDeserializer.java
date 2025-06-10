@@ -1,4 +1,4 @@
-package com.example.quranapp.data.remote.model; // Sesuaikan dengan package name aplikasi Anda
+package com.example.quranapp.data.remote.model;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -13,14 +13,10 @@ public class SuratNavInfoDeserializer implements JsonDeserializer<SuratNavInfo> 
 
     @Override
     public SuratNavInfo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        // Periksa apakah elemen JSON adalah objek
         if (json.isJsonObject()) {
-            // Jika ini adalah objek JSON, lanjutkan dengan deserialisasi normal.
-            // Kita akan mem-parse field secara manual untuk memastikan integritas.
             JsonObject jsonObject = json.getAsJsonObject();
-            SuratNavInfo navInfo = new SuratNavInfo(); // Buat instance baru
+            SuratNavInfo navInfo = new SuratNavInfo();
 
-            // Ambil nilai dengan aman, periksa keberadaan dan tipe data sebelum mengambilnya
             if (jsonObject.has("nomor") && jsonObject.get("nomor").isJsonPrimitive() && jsonObject.get("nomor").getAsJsonPrimitive().isNumber()) {
                 navInfo.setNomor(jsonObject.get("nomor").getAsInt());
             }
@@ -33,18 +29,14 @@ public class SuratNavInfoDeserializer implements JsonDeserializer<SuratNavInfo> 
             if (jsonObject.has("jumlahAyat") && jsonObject.get("jumlahAyat").isJsonPrimitive() && jsonObject.get("jumlahAyat").getAsJsonPrimitive().isNumber()) {
                 navInfo.setJumlahAyat(jsonObject.get("jumlahAyat").getAsInt());
             }
-            return navInfo; // Kembalikan objek SuratNavInfo yang sudah diisi
+            return navInfo;
 
         } else if (json.isJsonPrimitive()) {
-            // Jika elemen JSON adalah tipe primitif
             JsonPrimitive primitive = json.getAsJsonPrimitive();
-            // Periksa apakah itu boolean dan nilainya false
             if (primitive.isBoolean() && !primitive.getAsBoolean()) {
-                // Jika boolean false, kembalikan null. Ini menandakan tidak ada surat sebelumnya/selanjutnya.
                 return null;
             }
         }
-
         return null;
     }
 }

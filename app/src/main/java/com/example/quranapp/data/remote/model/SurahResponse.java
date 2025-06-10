@@ -1,4 +1,4 @@
-package com.example.quranapp.data.remote.model; // Sesuaikan dengan package name Anda
+package com.example.quranapp.data.remote.model;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
@@ -12,9 +12,8 @@ public class SurahResponse {
     private String message;
 
     @SerializedName("data")
-    private List<Surah> data; // List dari Surah.java yang sudah kita buat
+    private List<Surah> data;
 
-    // Getter dan Setter
     public int getCode() {
         return code;
     }

@@ -3,8 +3,8 @@ package com.example.quranapp.data;
 import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Html; // Import Html
-import android.text.Spanned; // Import Spanned
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -90,7 +90,6 @@ public class QuranRepository {
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     AyatResponse.AyatData data = response.body().getData();
                     if (data.getAudioFull() != null) {
-                        // Gunakan reciter default atau yang tersimpan untuk mendapatkan URL
                         String reciterKey = SettingsUtils.getReciterPreference(application);
                         String audioUrl = data.getAudioFull().getAudioUrlForReciter(reciterKey);
                         if (audioUrl != null && !audioUrl.isEmpty()) {
@@ -130,14 +129,12 @@ public class QuranRepository {
 
         Handler timeoutHandler = new Handler(Looper.getMainLooper());
         Runnable timeoutRunnable = () -> {
-            // Jika setelah 30 detik masih loading, anggap error
             if (Boolean.TRUE.equals(isLoadingSurah.getValue())) {
                 Log.e(TAG, "Loading surah timeout after 30 seconds");
                 errorMessageSurah.postValue("Permintaan data timeout. Coba lagi nanti.");
                 isLoadingSurah.postValue(false);
             }
         };
-        // Set timeout 30 detik
         timeoutHandler.postDelayed(timeoutRunnable, 30000);
 
         executorService.execute(() -> {
@@ -147,7 +144,7 @@ public class QuranRepository {
                 if (surahsFromDb != null && !surahsFromDb.isEmpty() && !forceRefresh) {
                     allSurahsLiveData.postValue(surahsFromDb);
                     isLoadingSurah.postValue(false);
-                    timeoutHandler.removeCallbacks(timeoutRunnable); // Batalkan timeout
+                    timeoutHandler.removeCallbacks(timeoutRunnable);
                 } else {
                     fetchAllSurahsFromApi(timeoutHandler, timeoutRunnable);
                 }
@@ -155,7 +152,7 @@ public class QuranRepository {
                 Log.e(TAG, "Error in loadAllSurahs", e);
                 errorMessageSurah.postValue("Terjadi kesalahan saat memuat data: " + e.getMessage());
                 isLoadingSurah.postValue(false);
-                timeoutHandler.removeCallbacks(timeoutRunnable); // Batalkan timeout
+                timeoutHandler.removeCallbacks(timeoutRunnable);
                 loadFallbackSurahsFromDb("Terjadi kesalahan: ");
             }
         });
@@ -166,7 +163,7 @@ public class QuranRepository {
             mainThreadHandler.post(() -> {
                 loadFallbackSurahsFromDb("Tidak ada koneksi internet. Menampilkan data offline.");
                 isLoadingSurah.setValue(false);
-                timeoutHandler.removeCallbacks(timeoutRunnable); // Batalkan timeout
+                timeoutHandler.removeCallbacks(timeoutRunnable);
             });
             return;
         }
@@ -174,7 +171,7 @@ public class QuranRepository {
         quranApiService.getAllSurah().enqueue(new Callback<SurahResponse>() {
             @Override
             public void onResponse(Call<SurahResponse> call, Response<SurahResponse> response) {
-                timeoutHandler.removeCallbacks(timeoutRunnable); // Batalkan timeout karena respons sudah diterima
+                timeoutHandler.removeCallbacks(timeoutRunnable);
 
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     List<Surah> surahsFromApi = response.body().getData();
@@ -188,7 +185,7 @@ public class QuranRepository {
                         } catch (Exception e) {
                             Log.e(TAG, "Error saving surahs to database", e);
                             mainThreadHandler.post(() -> {
-                                allSurahsLiveData.setValue(surahsFromApi); // Tetap set data dari API
+                                allSurahsLiveData.setValue(surahsFromApi);
                                 errorMessageSurah.setValue("Data berhasil dimuat, tapi gagal disimpan offline: " + e.getMessage());
                                 isLoadingSurah.setValue(false);
                             });
@@ -235,7 +232,6 @@ public class QuranRepository {
         });
     }
 
-    // --- Operasi Ayat (MODIFIKASI DI SINI) ---
     public void loadAyatsBySurahNumber(int nomorSurah, boolean forceRefresh) {
         isLoadingAyat.postValue(true);
         errorMessageAyat.postValue(null);
@@ -250,7 +246,6 @@ public class QuranRepository {
                     processAyatListSpannedText(ayatsFromDb);
                     ayatsLiveData.postValue(ayatsFromDb);
 
-                    // Buat objek AyatData secara manual dari Surah yang sudah ada di DB
                     AyatResponse.AyatData offlineAyatData = new AyatResponse.AyatData();
                     offlineAyatData.setNomor(surahDetailFromDb.getNomor());
                     offlineAyatData.setNama(surahDetailFromDb.getNama());
@@ -260,14 +255,12 @@ public class QuranRepository {
                     offlineAyatData.setArti(surahDetailFromDb.getArti());
                     offlineAyatData.setDeskripsi(surahDetailFromDb.getDeskripsi());
 
-                    // Set info navigasi dari objek Surah yang diambil dari DB
                     offlineAyatData.setSuratSelanjutnya(surahDetailFromDb.getSuratSelanjutnya());
                     offlineAyatData.setSuratSebelumnya(surahDetailFromDb.getSuratSebelumnya());
 
                     surahDetailLiveData.postValue(offlineAyatData);
                     isLoadingAyat.postValue(false);
 
-                    // Jika online, coba perbarui info navigasi di latar belakang
                     if (NetworkUtils.isNetworkAvailable(application)) {
                         fetchDetailSurahFromApiForInfo(nomorSurah);
                     }
@@ -283,7 +276,7 @@ public class QuranRepository {
             mainThreadHandler.post(() -> {
                 List<Ayat> ayatsFromDb = dbHelper.getAyatsBySurahNumber(nomorSurah);
                 if (ayatsFromDb != null && !ayatsFromDb.isEmpty()) {
-                    processAyatListSpannedText(ayatsFromDb); // Proses juga jika fallback ke DB
+                    processAyatListSpannedText(ayatsFromDb);
                     ayatsLiveData.setValue(ayatsFromDb);
                     errorMessageAyat.setValue("Tidak ada koneksi internet. Menampilkan data ayat offline.");
                 } else {
@@ -304,20 +297,13 @@ public class QuranRepository {
                     List<Ayat> ayatsFromApi = ayatDataFromApi.getAyat();
 
                     if (ayatsFromApi != null) {
-                        processAyatListSpannedText(ayatsFromApi); // Proses Spanned text dari API
+                        processAyatListSpannedText(ayatsFromApi);
                         executorService.execute(() -> {
                             dbHelper.addOrReplaceAyatsForSurah(nomorSurah, ayatsFromApi);
-                            // Ambil lagi dari DB untuk konsistensi (meskipun ayatsFromApi sudah diproses)
-                            // atau langsung gunakan ayatsFromApi yang sudah diproses.
-                            // Untuk menghindari double processing, kita bisa gunakan ayatsFromApi langsung
-                            // jika kita yakin addOrReplaceAyatsForSurah tidak mengubahnya.
-                            // Atau, panggil getAyatsBySurahNumber dan processAyatListSpannedText lagi.
-                            // Lebih sederhana: gunakan ayatsFromApi yang sudah diproses.
                             Surah surahToUpdate = dbHelper.getSurahByNomor(nomorSurah);
                             if (surahToUpdate != null) {
                                 surahToUpdate.setSuratSelanjutnya(ayatDataFromApi.getSuratSelanjutnya());
                                 surahToUpdate.setSuratSebelumnya(ayatDataFromApi.getSuratSebelumnya());
-                                // Gunakan addOrReplaceSurahs dengan list berisi satu item untuk update
                                 dbHelper.addOrReplaceSurahs(Collections.singletonList(surahToUpdate));
                             }
 
@@ -382,7 +368,7 @@ public class QuranRepository {
         executorService.execute(() -> {
             List<Ayat> ayatsFromDb = dbHelper.getAyatsBySurahNumber(nomorSurah);
             if (ayatsFromDb != null && !ayatsFromDb.isEmpty()) {
-                processAyatListSpannedText(ayatsFromDb); // Proses Spanned text
+                processAyatListSpannedText(ayatsFromDb);
                 mainThreadHandler.post(() -> {
                     ayatsLiveData.setValue(ayatsFromDb);
                     if (errorMessageAyat.getValue() == null || errorMessageAyat.getValue().isEmpty()) {
@@ -399,7 +385,6 @@ public class QuranRepository {
         });
     }
 
-    // --- Operasi Tafsir (Sama seperti sebelumnya) ---
     public void loadTafsirBySurahNumber(int nomorSurah) {
         isLoadingTafsir.postValue(true);
         errorMessageTafsir.postValue(null);
@@ -430,7 +415,6 @@ public class QuranRepository {
                     TafsirResponse.TafsirData dataFromApi = response.body().getData();
                     tafsirLiveData.postValue(dataFromApi);
 
-                    // SIMPAN HASIL DARI API KE DATABASE LOKAL
                     if (dataFromApi.getTafsir() != null && !dataFromApi.getTafsir().isEmpty()) {
                         executorService.execute(() -> {
                             dbHelper.addOrReplaceTafsirForSurah(nomorSurah, dataFromApi.getTafsir());

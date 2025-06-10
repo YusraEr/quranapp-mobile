@@ -1,11 +1,9 @@
-package com.example.quranapp.viewmodel; // Ganti dengan package name aplikasi Anda
+package com.example.quranapp.viewmodel;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-
 import com.example.quranapp.data.QuranRepository;
 import com.example.quranapp.data.remote.model.Ayat;
 import com.example.quranapp.data.remote.model.AyatResponse;
@@ -18,13 +16,11 @@ public class AyatViewModel extends AndroidViewModel {
     private QuranRepository quranRepository;
     private int currentSurahNumber = -1;
 
-    // LiveData untuk daftar Ayat
     private LiveData<List<Ayat>> ayatsLiveData;
     private LiveData<AyatResponse.AyatData> surahDetailLiveData;
     private LiveData<Boolean> isLoadingAyat;
     private LiveData<String> errorMessageAyat;
 
-    // LiveData untuk Tafsir
     private LiveData<TafsirResponse.TafsirData> tafsirLiveData;
     private LiveData<Boolean> isLoadingTafsir;
     private LiveData<String> errorMessageTafsir;

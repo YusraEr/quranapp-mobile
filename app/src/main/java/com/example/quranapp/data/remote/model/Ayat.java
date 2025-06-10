@@ -15,7 +15,7 @@ public class Ayat {
     private String teksArab;
 
     @SerializedName("teksLatin")
-    private String teksLatin; // Tetap simpan string HTML asli
+    private String teksLatin;
 
     @SerializedName("teksIndonesia")
     private String teksIndonesia;
@@ -23,9 +23,6 @@ public class Ayat {
     @SerializedName("audio")
     private Map<String, String> audio;
 
-    // Field baru untuk menyimpan hasil parsing Html.fromHtml()
-    // transient agar tidak ikut di-serialize/deserialize oleh Gson jika tidak diinginkan
-    // atau biarkan saja jika tidak masalah (Gson akan mengabaikannya jika tidak ada di JSON)
     private transient Spanned teksLatinSpanned;
 
     // Konstruktor default
@@ -73,7 +70,6 @@ public class Ayat {
         this.audio = audio;
     }
 
-    // Getter dan Setter untuk teksLatinSpanned
     public Spanned getTeksLatinSpanned() {
         return teksLatinSpanned;
     }
@@ -82,39 +78,16 @@ public class Ayat {
         this.teksLatinSpanned = teksLatinSpanned;
     }
 
-
-    public String getPreferredAudioUrl() {
-        if (audio != null) {
-            if (audio.containsKey("01") && audio.get("01") != null && !audio.get("01").isEmpty()) {
-                return audio.get("01");
-            }
-            if (audio.containsKey("05") && audio.get("05") != null && !audio.get("05").isEmpty()) {
-                return audio.get("05");
-            }
-            for (String url : audio.values()) {
-                if (url != null && !url.isEmpty()) {
-                    return url;
-                }
-            }
-        }
-        return null;
-    }
     public String getAudioUrlForReciter(String reciterKey) {
         if (audio == null || audio.isEmpty()) {
             return null;
         }
-
-        // 1. Coba dapatkan URL untuk qari pilihan
         if (audio.containsKey(reciterKey)) {
             return audio.get(reciterKey);
         }
-
-        // 2. Fallback jika qari pilihan tidak tersedia: Coba qari default (Misyari)
         if (audio.containsKey(SettingsUtils.DEFAULT_RECITER_KEY)) {
             return audio.get(SettingsUtils.DEFAULT_RECITER_KEY);
         }
-
-        // 3. Fallback terakhir: Kembalikan URL pertama yang tersedia
         return audio.values().iterator().next();
     }
 }

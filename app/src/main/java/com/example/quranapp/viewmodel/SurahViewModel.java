@@ -21,8 +21,6 @@ public class SurahViewModel extends AndroidViewModel {
     private LiveData<List<Surah>> allSurahsLiveData;
     private LiveData<Boolean> isLoadingSurah;
     private LiveData<String> errorMessageSurah;
-
-    // LiveData baru untuk audio surah penuh
     private LiveData<String> fullAudioUrlLiveData;
     private LiveData<String> fullAudioErrorLiveData;
     private List<Surah> masterSurahList = new ArrayList<>();
@@ -37,7 +35,6 @@ public class SurahViewModel extends AndroidViewModel {
         isLoadingSurah = quranRepository.getIsLoadingSurah();
         errorMessageSurah = quranRepository.getErrorMessageSurah();
 
-        // Hubungkan LiveData baru
         fullAudioUrlLiveData = quranRepository.getFullAudioUrlLiveData();
         fullAudioErrorLiveData = quranRepository.getFullAudioErrorLiveData();
 
@@ -87,7 +84,6 @@ public class SurahViewModel extends AndroidViewModel {
         return fullAudioErrorLiveData;
     }
 
-    // --- Metode Aksi ---
     public void initialLoadSurahs() {
         if (allSurahsLiveData.getValue() == null || allSurahsLiveData.getValue().isEmpty()) {
             quranRepository.loadAllSurahs(false);
@@ -98,7 +94,6 @@ public class SurahViewModel extends AndroidViewModel {
         quranRepository.loadAllSurahs(true);
     }
 
-    // Metode baru untuk mengambil URL audio
     public void fetchFullAudioUrl(int surahNumber) {
         quranRepository.fetchFullAudioUrlForSurah(surahNumber);
     }

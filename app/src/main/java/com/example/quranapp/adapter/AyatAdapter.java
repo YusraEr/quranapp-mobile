@@ -35,12 +35,10 @@ public class AyatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private boolean isAudioPlaying = false;
     private boolean isAudioLoading = false;
 
-    // Interface untuk klik pada item ayat (untuk toggle tafsir)
     public interface OnAyatClickListener {
         void onAyatClick(Ayat ayat, AyatViewHolder holder);
     }
 
-    // Interface untuk klik pada tombol putar audio
     public interface OnPlayAudioClickListener {
         void onPlayAudioClick(Ayat ayat);
     }
@@ -97,19 +95,6 @@ public class AyatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyDataSetChanged();
     }
 
-    public void updateAyats(List<Ayat> newAyatList) {
-        List<Object> newItems = new ArrayList<>();
-        // Keep header if exists
-        if (!items.isEmpty() && items.get(0) instanceof Surah) {
-            newItems.add(items.get(0));
-        }
-        if (newAyatList != null) {
-            newItems.addAll(newAyatList);
-        }
-        this.items = newItems;
-        notifyDataSetChanged();
-    }
-
     public void updateTafsir(List<Tafsir> newTafsirList) {
         tafsirMap.clear();
         if (newTafsirList != null) {
@@ -120,13 +105,6 @@ public class AyatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyDataSetChanged();
     }
 
-    /**
-     * Metode untuk mengupdate status playback dari Fragment.
-     * Adapter akan me-refresh item yang relevan untuk menampilkan ikon yang benar.
-     * @param playingAyatNomor Nomor ayat yang sedang diputar/dimuat, atau -1 jika tidak ada.
-     * @param isPlaying True jika audio sedang berjalan.
-     * @param isLoading True jika audio sedang dalam proses persiapan.
-     */
     public void updatePlaybackState(int playingAyatNomor, boolean isPlaying, boolean isLoading) {
         int oldPlayingPosition = findPositionByNomor(this.currentlyPlayingAyatNomor);
         int newPlayingPosition = findPositionByNomor(playingAyatNomor);
@@ -135,15 +113,12 @@ public class AyatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.isAudioPlaying = isPlaying;
         this.isAudioLoading = isLoading;
 
-        // Refresh item lama (untuk menghilangkan ikon pause/loading)
         if (oldPlayingPosition != -1) {
             notifyItemChanged(oldPlayingPosition);
         }
-        // Refresh item baru (untuk menampilkan ikon pause/loading)
         if (newPlayingPosition != -1 && newPlayingPosition != oldPlayingPosition) {
             notifyItemChanged(newPlayingPosition);
         } else if (newPlayingPosition != -1) {
-            // Jika item yang sama di-klik (misalnya, untuk pause), refresh juga
             notifyItemChanged(newPlayingPosition);
         }
     }
@@ -236,20 +211,15 @@ public class AyatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (ayat.getAudio() != null && !ayat.getAudio().isEmpty()) {
                 buttonPlayAudioAyat.setVisibility(View.VISIBLE);
 
-                // Set icon based on playback state
                 if (ayat.getNomorAyat() == currentlyPlayingAyatNomor) {
                     if (isAudioLoading) {
-                        // Show loading icon
                         buttonPlayAudioAyat.setImageResource(R.drawable.ic_hourglass_empty);
                     } else if (isAudioPlaying) {
-                        // Show pause icon
                         buttonPlayAudioAyat.setImageResource(R.drawable.ic_pause_circle);
                     } else {
-                        // Show play icon
                         buttonPlayAudioAyat.setImageResource(R.drawable.ic_play_arrow);
                     }
                 } else {
-                    // Default state - show play icon
                     buttonPlayAudioAyat.setImageResource(R.drawable.ic_play_arrow);
                 }
 

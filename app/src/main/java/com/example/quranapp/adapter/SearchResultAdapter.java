@@ -9,10 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.quranapp.R;
+
 import com.example.quranapp.data.remote.model.AyatSearchResult;
 
 import java.util.ArrayList;
@@ -61,7 +63,7 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
             header = itemView.findViewById(R.id.textViewSearchResultHeader);
             textArab = itemView.findViewById(R.id.textViewSearchResultArab);
             textTranslation = itemView.findViewById(R.id.textViewSearchResultTranslation);
-            highlightColor = Color.YELLOW; // Atau ambil dari colors.xml
+            highlightColor = Color.YELLOW;
         }
 
         void bind(AyatSearchResult result, String query) {
@@ -70,7 +72,6 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
 
             String translation = result.getAyatTranslation();
             SpannableString spannableString = new SpannableString(translation);
-
             if (query != null && !query.isEmpty()) {
                 String lowerTranslation = translation.toLowerCase();
                 String lowerQuery = query.toLowerCase();

@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.quranapp.R;
 import com.example.quranapp.adapter.AyatAdapter;
 import com.example.quranapp.data.remote.model.Ayat;
-import com.example.quranapp.data.remote.model.AyatResponse;
 import com.example.quranapp.utils.SettingsUtils;
 import com.example.quranapp.viewmodel.AyatViewModel;
 
@@ -47,7 +46,6 @@ public class AyatListFragment extends Fragment {
     private Integer pendingScrollToAyat = null;
     private com.example.quranapp.data.remote.model.AyatResponse.AyatData currentSurahHeader = null;
 
-    // Variabel UI
     private ProgressBar progressBarAyat;
     private TextView textViewErrorAyat;
     private Button buttonRefreshAyat;
@@ -177,7 +175,6 @@ public class AyatListFragment extends Fragment {
 
         AyatAdapter.OnPlayAudioClickListener playAudioClickListener = this::handlePlayAudioClick;
 
-        // Update to use List<Object> instead of List<Ayat>
         ayatAdapter = new AyatAdapter(new ArrayList<>(), ayatClickListener, playAudioClickListener);
 
         recyclerViewAyats.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -299,7 +296,7 @@ public class AyatListFragment extends Fragment {
             mediaPlayer.setOnPreparedListener(mp -> {
                 mp.start();
                 isAudioPlaying = true;
-                ayatAdapter.updatePlaybackState(currentlyPlayingAyatNomor, true, false); // Tampilkan pause
+                ayatAdapter.updatePlaybackState(currentlyPlayingAyatNomor, true, false);
             });
             mediaPlayer.prepareAsync();
         } catch (IOException | IllegalStateException e) {
@@ -330,7 +327,7 @@ public class AyatListFragment extends Fragment {
         Log.d("AyatListFragment", "scrollToAyat called with ayatNumber: " + ayatNumber);
         if (recyclerViewAyats != null && ayatAdapter != null && ayatAdapter.getItemCount() > 0) {
             int position = ayatNumber;
-            recyclerViewAyats.smoothScrollToPosition(position); // Gunakan smoothScrollToPosition untuk efek animasi scroll yang mulus
+            recyclerViewAyats.smoothScrollToPosition(position);
             pendingScrollToAyat = null;
         } else {
             pendingScrollToAyat = ayatNumber;

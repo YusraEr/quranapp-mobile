@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
@@ -27,6 +28,8 @@ public class DetailActivity extends AppCompatActivity {
     private AyatViewModel ayatViewModel;
     private TextView toolbarTitle;
     private FloatingActionButton buttonPreviousSurah, buttonNextSurah, fabGoToAyat, fabToTheTop;
+
+    private int totalAyat = 0;
 
     private SuratNavInfo currentSuratSebelumnya = null;
     private SuratNavInfo currentSuratSelanjutnya = null;
@@ -92,7 +95,6 @@ public class DetailActivity extends AppCompatActivity {
         int targetVisibility = visible ? View.VISIBLE : View.GONE;
         int duration = 250;
 
-        // Only show next/prev if data is valid (not null twice)
         boolean showPrev = currentSuratSebelumnya != null && currentSuratSebelumnya.getNomor() > 0 &&
                 currentSuratSebelumnya.getNamaLatin() != null && !currentSuratSebelumnya.getNamaLatin().isEmpty();
         boolean showNext = currentSuratSelanjutnya != null && currentSuratSelanjutnya.getNomor() > 0 &&
@@ -144,12 +146,12 @@ public class DetailActivity extends AppCompatActivity {
         ayatViewModel.getSurahDetail().observe(this, surahDetail -> {
             if (surahDetail == null) {
                 Log.d("DetailActivityDebug", "Observer triggered: surahDetail is NULL.");
-                // Hide navigation buttons when no data is available
                 buttonPreviousSurah.setVisibility(View.GONE);
                 buttonNextSurah.setVisibility(View.GONE);
                 return;
             }
 
+            totalAyat = surahDetail.getJumlahAyat();
 
             if (surahDetail.getSuratSelanjutnya() != null) {
                 Log.d("DetailActivityDebug", "  -> Surat Selanjutnya DITERIMA: " + surahDetail.getSuratSelanjutnya().getNamaLatin());
@@ -177,7 +179,6 @@ public class DetailActivity extends AppCompatActivity {
                 buttonPreviousSurah.setVisibility(View.GONE);
                 Log.d("DetailActivity", "Previous surah data invalid or not available");
             }
-
 
             if (currentSuratSelanjutnya != null && currentSuratSelanjutnya.getNomor() > 0 &&
                 currentSuratSelanjutnya.getNamaLatin() != null && !currentSuratSelanjutnya.getNamaLatin().isEmpty()) {
@@ -223,23 +224,39 @@ public class DetailActivity extends AppCompatActivity {
     private void showGoToAyatDialog() {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
         builder.setTitle("Go to Ayat");
+
+        String message = "Masukkan nomor ayat (1-" + totalAyat + ")";
+        builder.setMessage(message);
+
         final android.widget.EditText input = new android.widget.EditText(this);
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
         input.setHint("Enter ayat number");
         builder.setView(input);
+
         builder.setPositiveButton("Go", (dialog, which) -> {
             String value = input.getText().toString();
             if (!value.isEmpty()) {
                 int ayatNumber = Integer.parseInt(value);
-                goToAyatInFragment(ayatNumber);
+
+                if (ayatNumber < 1 || ayatNumber > totalAyat) {
+                    Toast.makeText(this, "Nomor ayat harus antara 1 dan " + totalAyat, Toast.LENGTH_SHORT).show();
+                } else {
+                    goToAyatInFragment(ayatNumber);
+                }
             }
         });
+
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
     private void goToAyatInFragment(int ayatNumber) {
-        // Coba ambil fragment dengan tag, fallback ke byId
+        if (ayatNumber < 1 || ayatNumber > totalAyat) {
+            Log.e("DetailActivity", "Ayat number out of bounds: " + ayatNumber + ", total ayat: " + totalAyat);
+            Toast.makeText(this, "Nomor ayat harus antara 1 dan " + totalAyat, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         AyatListFragment fragment = (AyatListFragment) getSupportFragmentManager().findFragmentByTag("AyatListFragment");
         if (fragment == null) {
             fragment = (AyatListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container_detail);

@@ -132,7 +132,7 @@
             android:id="@+id/textViewSurahNameArabic"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
+            style="@style/ArabicTextStyle"
             android:gravity="center"
             android:textColor="?attr/colorSecondary"
             android:textSize="26sp"

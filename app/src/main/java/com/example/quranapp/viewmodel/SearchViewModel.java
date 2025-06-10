@@ -18,7 +18,6 @@ public class SearchViewModel extends AndroidViewModel {
     private final MutableLiveData<List<AyatSearchResult>> _searchResults = new MutableLiveData<>();
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
 
-    // LiveData yang akan diobservasi oleh UI (tidak bisa diubah dari luar)
     public final LiveData<List<AyatSearchResult>> searchResults = _searchResults;
     public final LiveData<Boolean> isLoading = _isLoading;
 
@@ -33,11 +32,9 @@ public class SearchViewModel extends AndroidViewModel {
             return;
         }
         _isLoading.setValue(true);
-        // Repository akan mem-post hasil ke LiveData yang sama
         repository.searchAyats(keyword.trim(), _searchResults);
     }
 
-    // --- METODE BARU UNTUK DIPANGGIL DARI ACTIVITY ---
     public void searchCompleted() {
         _isLoading.setValue(false);
     }   

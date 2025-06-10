@@ -1,18 +1,13 @@
-package com.example.quranapp.data.remote.model; // Sesuaikan dengan package name Anda
+package com.example.quranapp.data.remote.model;
 
 import com.google.gson.annotations.SerializedName;
-
-// Kelas ini digunakan untuk parsing objek suratSelanjutnya dan suratSebelumnya
-// yang bisa berupa objek atau boolean 'false'.
-// Gson akan menangani ini dengan baik jika field di AyatResponse.AyatData
-// dideklarasikan sebagai SuratNavInfo. Jika API mengembalikan 'false', objek ini akan null.
 public class SuratNavInfo {
 
     @SerializedName("nomor")
     private int nomor;
 
     @SerializedName("nama")
-    private String nama; // Nama Arab
+    private String nama;
 
     @SerializedName("namaLatin")
     private String namaLatin;
@@ -20,7 +15,6 @@ public class SuratNavInfo {
     @SerializedName("jumlahAyat")
     private int jumlahAyat;
 
-    // Konstruktor default
     public SuratNavInfo() {
     }
 

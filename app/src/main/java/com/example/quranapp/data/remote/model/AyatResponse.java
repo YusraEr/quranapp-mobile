@@ -14,7 +14,6 @@ public class AyatResponse {
     @SerializedName("data")
     private AyatData data;
 
-    // Getter dan Setter
     public int getCode() {
         return code;
     }
@@ -39,13 +38,12 @@ public class AyatResponse {
         this.data = data;
     }
 
-    // Kelas inner untuk bagian "data" dalam respons detail surah
     public static class AyatData {
         @SerializedName("nomor")
         private int nomor;
 
         @SerializedName("nama")
-        private String nama; // Nama Arab
+        private String nama;
 
         @SerializedName("namaLatin")
         private String namaLatin;
@@ -63,18 +61,17 @@ public class AyatResponse {
         private String deskripsi;
 
         @SerializedName("audioFull")
-        private Surah.AudioUrl audioFull; // Menggunakan AudioUrl dari Surah.java
+        private Surah.AudioUrl audioFull;
 
         @SerializedName("ayat")
-        private List<Ayat> ayat; // List dari Ayat.java yang sudah kita buat
+        private List<Ayat> ayat;
 
         @SerializedName("suratSelanjutnya")
-        private SuratNavInfo suratSelanjutnya; // Bisa objek atau false (boolean)
+        private SuratNavInfo suratSelanjutnya;
 
         @SerializedName("suratSebelumnya")
-        private SuratNavInfo suratSebelumnya; // Bisa objek atau false (boolean)
+        private SuratNavInfo suratSebelumnya;
 
-        // Getter dan Setter untuk AyatData
         public int getNomor() {
             return nomor;
         }

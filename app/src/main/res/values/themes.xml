@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+
     <style name="Base.Theme.QuranApp" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimaryLight</item>
         <item name="colorOnPrimary">@color/colorOnPrimaryLight</item>
@@ -21,7 +22,9 @@
         <item name="colorSurfaceVariant">@color/colorSurfaceVariantLight</item>
         <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariantLight</item>
         <item name="colorOutline">@color/colorOutlineLight</item>
-        <item name="colorOutlineVariant">@color/colorOutlineVariantLight</item> <item name="android:statusBarColor">?attr/colorPrimaryVariant</item> <item name="actionBarTheme">@style/ThemeOverlay.QuranApp.ActionBar</item>
+        <item name="colorOutlineVariant">@color/colorOutlineVariantLight</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.QuranApp.ActionBar</item>
         <item name="actionBarPopupTheme">@style/ThemeOverlay.QuranApp.Popup</item>
 
         <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.OutlinedButton</item>
@@ -30,11 +33,13 @@
 
     <style name="Theme.QuranApp" parent="Base.Theme.QuranApp" />
 
-    <style name="ThemeOverlay.QuranApp.ActionBar" parent="ThemeOverlay.Material3.Dark.ActionBar">
+    <style name="ArabicTextStyle">
+        <item name="android:fontFamily">@font/uthmanic_font</item>
     </style>
 
-    <style name="ThemeOverlay.QuranApp.Popup" parent="ThemeOverlay.Material3.Light">
-    </style>
+    <style name="ThemeOverlay.QuranApp.ActionBar" parent="ThemeOverlay.Material3.Dark.ActionBar"></style>
+
+    <style name="ThemeOverlay.QuranApp.Popup" parent="ThemeOverlay.Material3.Light"></style>
 
     <style name="Widget.App.Button.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
         <item name="strokeColor">?attr/colorPrimary</item>

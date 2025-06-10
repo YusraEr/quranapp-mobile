@@ -1,4 +1,4 @@
-package com.example.quranapp.utils; // Ganti dengan package name aplikasi Anda
+package com.example.quranapp.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

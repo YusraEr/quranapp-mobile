@@ -1,20 +1,18 @@
-package com.example.quranapp.data.remote.model; // Sesuaikan dengan package name Anda
+package com.example.quranapp.data.remote.model;
 
 import com.google.gson.annotations.SerializedName;
 
 public class Tafsir {
 
     @SerializedName("ayat")
-    private int ayat; // Nomor ayat yang ditafsirkan
+    private int ayat;
 
     @SerializedName("teks")
-    private String teks; // Isi tafsir
+    private String teks;
 
-    // Konstruktor default
     public Tafsir() {
     }
 
-    // Getter dan Setter
     public int getAyat() {
         return ayat;
     }

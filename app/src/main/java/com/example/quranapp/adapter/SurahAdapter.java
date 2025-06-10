@@ -105,48 +105,38 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
 
             if (surah == null) return;
 
-            // Set nomor surah
             textViewSurahNumber.setText(String.valueOf(surah.getNomor()));
 
-            // Set nama latin surah
             textViewSurahName.setText(surah.getNamaLatin() != null ? surah.getNamaLatin() : "");
 
-            // Set nama Arab surah
             textViewSurahNameArabic.setText(surah.getNama() != null ? surah.getNama() : "");
 
-            // Format info surah: tempat turun dan jumlah ayat
             String info = String.format(Locale.getDefault(), "%s • %d Ayat",
                 surah.getArti() != null ? surah.getArti() : "",
                 surah.getJumlahAyat());
             textViewSurahTranslation.setText(info);
 
-            // Set jenis surah (Makkiyah/Madaniyah)
             textViewSurahType.setText(surah.getTempatTurun() != null ? surah.getTempatTurun() : "");
 
-            // Set onclick listener untuk item
             itemView.setOnClickListener(v -> {
                 if (clickListener != null) {
                     clickListener.onSurahClick(surah);
                 }
             });
 
-            // Handle tombol play audio jika tersedia
             if (buttonPlayFullAudioSurah != null) {
                 buttonPlayFullAudioSurah.setVisibility(View.VISIBLE);
 
-                // Set onclick listener untuk tombol play
                 buttonPlayFullAudioSurah.setOnClickListener(v -> {
                     if (audioClickListener != null) {
                         audioClickListener.onPlayFullAudioClick(surah);
                     }
                 });
 
-                // Update tampilan tombol berdasarkan status audio
                 updateAudioButtonState(surah.getNomor(), currentlyPlayingSurahNomor, isAudioPlaying, isAudioLoading);
             }
         }
 
-        // Method terpisah untuk mengatur tampilan tombol audio
         private void updateAudioButtonState(int surahNomor, int playingSurahNomor, boolean isPlaying, boolean isLoading) {
             if (buttonPlayFullAudioSurah == null) return;
 

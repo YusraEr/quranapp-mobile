@@ -25,7 +25,6 @@ import com.example.quranapp.R;
 import com.example.quranapp.adapter.SurahAdapter;
 import com.example.quranapp.data.remote.model.Surah;
 import com.example.quranapp.utils.NetworkUtils;
-import com.example.quranapp.utils.SettingsUtils; // Pastikan import ini ada
 import com.example.quranapp.viewmodel.SurahViewModel;
 
 import java.io.IOException;
@@ -45,7 +44,6 @@ public class SurahListFragment extends Fragment {
     private boolean isSurahAudioPlaying = false;
 
     public SurahListFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -103,7 +101,6 @@ public class SurahListFragment extends Fragment {
             }
         });
 
-        // Clear button listener
         searchViewSurah.setOnCloseListener(() -> {
             surahViewModel.filterSurahs("");
             return false;
@@ -142,14 +139,14 @@ public class SurahListFragment extends Fragment {
 
     private void setupRecyclerView() {
         surahAdapter = new SurahAdapter(new ArrayList<>(),
-                surah -> { // Listener klik item surah
+                surah -> {
                     stopAndResetAudioState();
                     Intent intent = new Intent(getActivity(), DetailActivity.class);
                     intent.putExtra(DetailActivity.EXTRA_SURAH_NUMBER, surah.getNomor());
                     intent.putExtra(DetailActivity.EXTRA_SURAH_NAME_LATIN, surah.getNamaLatin());
                     startActivity(intent);
                 },
-                surah -> { // Listener klik tombol audio
+                surah -> {
                     handlePlayFullAudio(surah);
                 }
         );
@@ -161,13 +158,11 @@ public class SurahListFragment extends Fragment {
         surahViewModel.filteredSurahs.observe(getViewLifecycleOwner(), surahs -> {
             if (!isAdded()) return;
 
-            // Jika daftar tidak kosong, update adapter
             if (surahs != null && !surahs.isEmpty()) {
                 surahAdapter.updateSurahs(surahs);
                 recyclerViewSurahs.setVisibility(View.VISIBLE);
                 textViewErrorFragment.setVisibility(View.GONE);
             }
-            // Jika daftar kosong tapi tidak sedang loading, tampilkan pesan
             else if (surahViewModel.getIsLoading().getValue() != null && !surahViewModel.getIsLoading().getValue()) {
                 surahAdapter.updateSurahs(new ArrayList<>());
                 textViewErrorFragment.setText("Surah tidak ditemukan.");
@@ -201,14 +196,12 @@ public class SurahListFragment extends Fragment {
 
         surahViewModel.getFullAudioUrl().observe(getViewLifecycleOwner(), audioUrl -> {
             if (audioUrl != null && !audioUrl.isEmpty()) {
-                // URL berhasil didapat, putar audio
                 playNewSurahAudio(audioUrl);
             }
         });
 
         surahViewModel.getFullAudioError().observe(getViewLifecycleOwner(), error -> {
             if (error != null && !error.isEmpty()) {
-                // Gagal mendapatkan URL, tampilkan pesan dan reset UI
                 Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
                 stopAndResetAudioState();
             }
@@ -217,13 +210,9 @@ public class SurahListFragment extends Fragment {
 
     private void setupEventListeners() {
         buttonRefreshFragment.setOnClickListener(v -> {
-            // PERBAIKAN DI SINI:
-            // Cek koneksi internet sebelum mencoba refresh.
             if (NetworkUtils.isNetworkAvailable(requireContext())) {
-                // Jika ada koneksi, panggil metode refresh di ViewModel.
                 surahViewModel.refreshSurahs();
             } else {
-                // Jika tidak ada koneksi, beri tahu pengguna dengan Toast.
                 Toast.makeText(getContext(), "Tidak ada koneksi internet", Toast.LENGTH_SHORT).show();
             }
         });
@@ -232,11 +221,11 @@ public class SurahListFragment extends Fragment {
     private void handlePlayFullAudio(final Surah surah) {
         initializeMediaPlayer();
 
-        if (surah.getNomor() == currentlyPlayingSurahNomor) { // Jika surah yang sama diklik
-            if (isSurahAudioPlaying) { // dan sedang bermain -> pause
+        if (surah.getNomor() == currentlyPlayingSurahNomor) {
+            if (isSurahAudioPlaying) {
                 surahMediaPlayer.pause();
                 isSurahAudioPlaying = false;
-            } else { // dan sedang pause -> lanjutkan
+            } else {
                 surahMediaPlayer.start();
                 isSurahAudioPlaying = true;
             }

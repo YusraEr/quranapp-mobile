@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton buttonChangeTheme;
     private SurahViewModel surahViewModel;
 
-    private int selectedReciterIndex = -1; // Untuk menyimpan pilihan sementara di dialog
+    private int selectedReciterIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         setupEventListeners();
     }
 
-    // --- Inflate Menu ---
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -70,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    // --- Handle Menu Item Clicks ---
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_select_reciter) {
@@ -102,10 +100,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        selectedReciterIndex = checkedItem; // Simpan index awal
+        selectedReciterIndex = checkedItem;
 
         builder.setSingleChoiceItems(reciterNames, checkedItem, (dialog, which) -> {
-            selectedReciterIndex = which; // Update index pilihan sementara
+            selectedReciterIndex = which;
         });
 
         builder.setPositiveButton("OK", (dialog, which) -> {
@@ -126,14 +124,12 @@ public class MainActivity extends AppCompatActivity {
     private void loadSurahListFragment() {
         SurahListFragment surahListFragment = new SurahListFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container_main, surahListFragment); // Pastikan ID container ini ada di activity_main.xml
-        // transaction.addToBackStack(null); // Opsional, tergantung kebutuhan navigasi
+        transaction.replace(R.id.fragment_container_main, surahListFragment);
         transaction.commit();
     }
 
     private void setupObservers() {
 
-        // Contoh jika SurahViewModel memiliki LiveData untuk loading dan error yang relevan untuk MainActivity
         surahViewModel.getIsLoading().observe(this, isLoading -> {
             if (isLoading != null) {
                 progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
@@ -156,20 +152,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Mengamati daftar surah untuk mengetahui apakah data berhasil dimuat
-        // (dan menyembunyikan error jika berhasil)
         surahViewModel.getAllSurahs().observe(this, surahs -> {
             if (surahs != null && !surahs.isEmpty()) {
                 textViewError.setVisibility(View.GONE);
                 buttonRefresh.setVisibility(View.GONE);
-                // SurahListFragment akan menangani penampilan data
             }
         });
     }
 
     private void setupEventListeners() {
         buttonRefresh.setOnClickListener(v -> {
-            // Memanggil metode refresh di ViewModel
             surahViewModel.refreshSurahs();
         });
 
@@ -188,10 +180,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateThemeIcon() {
         if (ThemeUtils.isDarkTheme(this)) {
-            // In dark theme, show the sun icon (to switch to light)
             buttonChangeTheme.setImageResource(R.drawable.ic_moon);
         } else {
-            // In light theme, show the moon icon (to switch to dark)
             buttonChangeTheme.setImageResource(R.drawable.ic_theme);
         }
     }

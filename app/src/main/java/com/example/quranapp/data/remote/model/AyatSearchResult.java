@@ -8,7 +8,7 @@ public class AyatSearchResult {
     private int ayatNumber;
     private String ayatTextArab;
     private String ayatTranslation;
-    private Spanned spannedTranslation; // Untuk highlight kata kunci
+    private Spanned spannedTranslation;
 
     public int getSurahNumber() {
         return surahNumber;
@@ -58,7 +58,6 @@ public class AyatSearchResult {
         this.spannedTranslation = spannedTranslation;
     }
 
-    // Konstruktor, Getter, dan Setter
     public AyatSearchResult(int surahNumber, String surahNameLatin, int ayatNumber, String ayatTextArab, String ayatTranslation) {
         this.surahNumber = surahNumber;
         this.surahNameLatin = surahNameLatin;

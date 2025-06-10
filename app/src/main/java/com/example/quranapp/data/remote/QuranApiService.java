@@ -1,4 +1,4 @@
-package com.example.quranapp.data.remote; // Sesuaikan dengan package name Anda
+package com.example.quranapp.data.remote;
 
 import com.example.quranapp.data.remote.model.AyatResponse;
 import com.example.quranapp.data.remote.model.SurahResponse;
