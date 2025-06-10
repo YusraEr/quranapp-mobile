@@ -241,30 +241,34 @@ public class SurahListFragment extends Fragment {
                 isSurahAudioPlaying = true;
             }
             surahAdapter.updatePlaybackState(currentlyPlayingSurahNomor, isSurahAudioPlaying, false);
-        } else { // Jika surah baru diklik
-            stopAndResetAudioState(); // Hentikan pemutaran sebelumnya
+        } else {
+            stopAndResetAudioState();
 
-            // Perbarui UI untuk menunjukkan status loading
             currentlyPlayingSurahNomor = surah.getNomor();
             surahAdapter.updatePlaybackState(currentlyPlayingSurahNomor, false, true);
 
-            // Minta ViewModel untuk mengambil URL audio
             surahViewModel.fetchFullAudioUrl(surah.getNomor());
         }
     }
 
-    // Metode playNewSurahAudio sekarang hanya menerima URL
     private void playNewSurahAudio(String audioUrl) {
         try {
-            surahMediaPlayer.reset();
-            surahMediaPlayer.setDataSource(audioUrl);
-            surahMediaPlayer.setOnPreparedListener(mp -> {
-                mp.start();
-                isSurahAudioPlaying = true;
-                // Update UI untuk menunjukkan status 'playing'
-                surahAdapter.updatePlaybackState(currentlyPlayingSurahNomor, true, false);
-            });
-            surahMediaPlayer.prepareAsync();
+            if (surahMediaPlayer == null) {
+                initializeMediaPlayer();
+            }
+            if (surahMediaPlayer != null) {
+                surahMediaPlayer.reset();
+                surahMediaPlayer.setDataSource(audioUrl);
+                surahMediaPlayer.setOnPreparedListener(mp -> {
+                    mp.start();
+                    isSurahAudioPlaying = true;
+                    surahAdapter.updatePlaybackState(currentlyPlayingSurahNomor, true, false);
+                });
+                surahMediaPlayer.prepareAsync();
+            } else {
+                Log.e("SurahListFragment", "MediaPlayer is null after initialization attempt");
+                Toast.makeText(getContext(), "Gagal memutar audio. Silakan coba lagi.", Toast.LENGTH_SHORT).show();
+            }
         } catch (IOException | IllegalStateException e) {
             Log.e("SurahListFragment", "Error playing new audio", e);
             stopAndResetAudioState();

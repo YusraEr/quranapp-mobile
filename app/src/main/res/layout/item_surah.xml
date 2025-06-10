@@ -1,118 +1,150 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="12dp"
-    android:layout_marginTop="6dp"
+    android:layout_marginTop="8dp"
     android:layout_marginEnd="12dp"
-    android:layout_marginBottom="6dp"
-    android:background="@drawable/bg_card_ripple"
+    android:layout_marginBottom="8dp"
     android:clickable="true"
     android:focusable="true"
-    android:padding="16dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="?attr/colorSurface">
 
-    <!-- Nomor Surah di Kiri dengan efek bayangan dan gradien -->
-    <TextView
-        android:id="@+id/textViewSurahNumber"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:background="@drawable/bg_surah_number"
-        android:elevation="2dp"
-        android:fontFamily="sans-serif-medium"
-        android:gravity="center"
-        android:textColor="?attr/colorOnPrimary"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="1" />
-
-    <!-- Container untuk detail surah -->
-    <LinearLayout
-        android:id="@+id/layoutSurahInfo"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonPlayFullAudioSurah"
-        app:layout_constraintStart_toEndOf="@+id/textViewSurahNumber"
-        app:layout_constraintTop_toTopOf="parent">
+        android:background="?attr/selectableItemBackground"
+        android:padding="16dp">
 
-        <!-- Nama surah bahasa Indonesia dengan gaya modern -->
-        <TextView
-            android:id="@+id/textViewSurahName"
-            android:layout_width="match_parent"
+        <!-- Barrier to separate left content from right content -->
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="layoutSurahInfo" />
+
+        <!-- Nomor Surah dengan desain yang lebih elegan -->
+        <TextView
+            android:id="@+id/textViewSurahNumber"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_surah_number"
+            android:elevation="4dp"
             android:fontFamily="sans-serif-medium"
-            android:textColor="?attr/colorOnSurface"
+            android:gravity="center"
+            android:textColor="?attr/colorOnPrimary"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:text="Al-Fatihah" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="1" />
 
-        <!-- Arti surah dengan gaya modern -->
+        <!-- Detail Surah dengan layout yang lebih terorganisir -->
+        <LinearLayout
+            android:id="@+id/layoutSurahInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/buttonPlayFullAudioSurah"
+            app:layout_constraintStart_toEndOf="@+id/textViewSurahNumber"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- Nama surah dengan styling yang lebih baik -->
+            <TextView
+                android:id="@+id/textViewSurahName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="Al-Fatihah" />
+
+            <!-- Arti surah dengan layout yang lebih baik -->
+            <TextView
+                android:id="@+id/textViewSurahTranslation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="sans-serif"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="14sp"
+                tools:text="Pembukaan • 7 Ayat" />
+
+            <!-- Informasi tipe surah dengan desain badge yang ditingkatkan -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textViewSurahType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_surah_type"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingTop="3dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="3dp"
+                    android:textColor="?attr/colorSecondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    tools:text="Makkiyah" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Audio playback button dengan desain yang lebih baik dan posisi konsisten -->
+        <ImageButton
+            android:id="@+id/buttonPlayFullAudioSurah"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Putar audio surah"
+            android:padding="4dp"
+            android:src="@drawable/ic_play_circle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/barrier"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Guideline untuk membatasi lebar konten dan menjaga konsistensi -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="90dp" />
+
+        <!-- Nama surah dalam Arab dengan kaligrafi yang ditingkatkan -->
         <TextView
-            android:id="@+id/textViewSurahTranslation"
-            android:layout_width="match_parent"
+            android:id="@+id/textViewSurahNameArabic"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="13sp"
-            tools:text="Pembukaan • 7 Ayat" />
+            android:gravity="center"
+            android:textColor="?attr/colorSecondary"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintWidth="80dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="الفاتحة" />
 
-        <!-- Informasi lokasi dengan ikon -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/textViewSurahType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_surah_type"
-                android:fontFamily="sans-serif"
-                android:paddingStart="8dp"
-                android:paddingTop="2dp"
-                android:paddingEnd="8dp"
-                android:paddingBottom="2dp"
-                android:textColor="?attr/colorSecondary"
-                android:textSize="11sp"
-                tools:text="Makkiyah" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Tombol Play Audio Surah -->
-    <ImageButton
-        android:id="@+id/buttonPlayFullAudioSurah"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginEnd="8dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Putar audio surah"
-        android:src="@drawable/ic_play_circle"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textViewSurahNameArabic"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Nama Arab di Kanan dengan gaya kaligrafi -->
-    <TextView
-        android:id="@+id/textViewSurahNameArabic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:textColor="?attr/colorSecondary"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="الفاتحة" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
