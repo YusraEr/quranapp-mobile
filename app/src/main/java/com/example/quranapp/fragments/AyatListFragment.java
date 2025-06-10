@@ -296,3 +296,4 @@ public class AyatListFragment extends Fragment {
         }
     }
 }
+

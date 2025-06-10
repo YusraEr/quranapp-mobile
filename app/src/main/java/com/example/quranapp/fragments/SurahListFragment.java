@@ -40,7 +40,6 @@ public class SurahListFragment extends Fragment {
     private TextView textViewErrorFragment;
     private Button buttonRefreshFragment;
     private SearchView searchViewSurah;
-
     private MediaPlayer surahMediaPlayer;
     private int currentlyPlayingSurahNomor = -1;
     private boolean isSurahAudioPlaying = false;
@@ -170,7 +169,7 @@ public class SurahListFragment extends Fragment {
             }
             // Jika daftar kosong tapi tidak sedang loading, tampilkan pesan
             else if (surahViewModel.getIsLoading().getValue() != null && !surahViewModel.getIsLoading().getValue()) {
-                surahAdapter.updateSurahs(new ArrayList<>()); // Kosongkan adapter
+                surahAdapter.updateSurahs(new ArrayList<>());
                 textViewErrorFragment.setText("Surah tidak ditemukan.");
                 textViewErrorFragment.setVisibility(View.VISIBLE);
                 recyclerViewSurahs.setVisibility(View.GONE);

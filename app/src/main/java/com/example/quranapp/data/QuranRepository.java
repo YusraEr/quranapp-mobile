@@ -131,7 +131,6 @@ public class QuranRepository {
         isLoadingSurah.postValue(true);
         errorMessageSurah.postValue(null);
 
-        // Mencegah loading tanpa batas dengan timeout
         Handler timeoutHandler = new Handler(Looper.getMainLooper());
         Runnable timeoutRunnable = () -> {
             // Jika setelah 30 detik masih loading, anggap error

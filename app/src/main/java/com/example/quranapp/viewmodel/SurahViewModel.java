@@ -1,6 +1,7 @@
 package com.example.quranapp.viewmodel;
 
 import android.app.Application;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -27,6 +28,7 @@ public class SurahViewModel extends AndroidViewModel {
     private List<Surah> masterSurahList = new ArrayList<>();
     private final MutableLiveData<List<Surah>> _filteredSurahs = new MutableLiveData<>();
     public final LiveData<List<Surah>> filteredSurahs = _filteredSurahs;
+
     public SurahViewModel(@NonNull Application application) {
         super(application);
         quranRepository = new QuranRepository(application);
@@ -46,6 +48,7 @@ public class SurahViewModel extends AndroidViewModel {
             }
         });
     }
+
     public void filterSurahs(String query) {
         if (query == null || query.trim().isEmpty()) {
             _filteredSurahs.postValue(masterSurahList);
@@ -56,21 +59,33 @@ public class SurahViewModel extends AndroidViewModel {
         String lowerCaseQuery = query.toLowerCase(Locale.getDefault()).trim();
 
         for (Surah surah : masterSurahList) {
-            // Filter berdasarkan nama Latin atau nomor surah
             if (surah.getNamaLatin().toLowerCase(Locale.getDefault()).contains(lowerCaseQuery) ||
+                    surah.getArti().toLowerCase(Locale.getDefault()).contains(lowerCaseQuery) ||
                     String.valueOf(surah.getNomor()).equals(lowerCaseQuery)) {
                 filteredList.add(surah);
             }
         }
         _filteredSurahs.postValue(filteredList);
     }
+    public LiveData<List<Surah>> getAllSurahs() {
+        return allSurahsLiveData;
+    }
 
-    // --- Getter untuk LiveData ---
-    public LiveData<List<Surah>> getAllSurahs() { return allSurahsLiveData; }
-    public LiveData<Boolean> getIsLoading() { return isLoadingSurah; }
-    public LiveData<String> getErrorMessage() { return errorMessageSurah; }
-    public LiveData<String> getFullAudioUrl() { return fullAudioUrlLiveData; }
-    public LiveData<String> getFullAudioError() { return fullAudioErrorLiveData; }
+    public LiveData<Boolean> getIsLoading() {
+        return isLoadingSurah;
+    }
+
+    public LiveData<String> getErrorMessage() {
+        return errorMessageSurah;
+    }
+
+    public LiveData<String> getFullAudioUrl() {
+        return fullAudioUrlLiveData;
+    }
+
+    public LiveData<String> getFullAudioError() {
+        return fullAudioErrorLiveData;
+    }
 
     // --- Metode Aksi ---
     public void initialLoadSurahs() {

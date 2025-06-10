@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
@@ -17,6 +15,7 @@ import com.example.quranapp.data.remote.model.SuratNavInfo;
 import com.example.quranapp.fragments.AyatListFragment;
 import com.example.quranapp.utils.ThemeUtils;
 import com.example.quranapp.viewmodel.AyatViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -27,8 +26,7 @@ public class DetailActivity extends AppCompatActivity {
     private String surahNameLatin;
     private AyatViewModel ayatViewModel;
     private TextView toolbarTitle;
-    private Button buttonPreviousSurah;
-    private Button buttonNextSurah;
+    private FloatingActionButton buttonPreviousSurah, buttonNextSurah, fabGoToAyat;
 
     private SuratNavInfo currentSuratSebelumnya = null;
     private SuratNavInfo currentSuratSelanjutnya = null;
@@ -47,8 +45,9 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         toolbarTitle = findViewById(R.id.toolbarDetailTitle);
-        buttonPreviousSurah = findViewById(R.id.buttonPreviousSurah);
-        buttonNextSurah = findViewById(R.id.buttonNextSurah);
+        buttonPreviousSurah = findViewById(R.id.fabPreviousSurah);
+        buttonNextSurah = findViewById(R.id.fabNextSurah);
+        fabGoToAyat = findViewById(R.id.fabGoToAyat);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -61,7 +60,7 @@ public class DetailActivity extends AppCompatActivity {
             return;
         }
 
-        updateToolbarTitle(surahNameLatin, null); // Judul awal
+        updateToolbarTitle(surahNameLatin, null);
 
         ayatViewModel = new ViewModelProvider(this).get(AyatViewModel.class);
 
@@ -97,7 +96,6 @@ public class DetailActivity extends AppCompatActivity {
                 return;
             }
 
-            Log.d("DetailActivityDebug", "Observer triggered: Surah " + surahDetail.getNamaLatin());
 
             if (surahDetail.getSuratSelanjutnya() != null) {
                 Log.d("DetailActivityDebug", "  -> Surat Selanjutnya DITERIMA: " + surahDetail.getSuratSelanjutnya().getNamaLatin());
@@ -120,17 +118,15 @@ public class DetailActivity extends AppCompatActivity {
 
             if (currentSuratSebelumnya != null && currentSuratSebelumnya.getNomor() > 0 &&
                 currentSuratSebelumnya.getNamaLatin() != null && !currentSuratSebelumnya.getNamaLatin().isEmpty()) {
-                buttonPreviousSurah.setText(currentSuratSebelumnya.getNamaLatin());
                 buttonPreviousSurah.setVisibility(View.VISIBLE);
             } else {
                 buttonPreviousSurah.setVisibility(View.GONE);
                 Log.d("DetailActivity", "Previous surah data invalid or not available");
             }
 
-            // Update next surah button visibility and text
+
             if (currentSuratSelanjutnya != null && currentSuratSelanjutnya.getNomor() > 0 &&
                 currentSuratSelanjutnya.getNamaLatin() != null && !currentSuratSelanjutnya.getNamaLatin().isEmpty()) {
-                buttonNextSurah.setText(currentSuratSelanjutnya.getNamaLatin());
                 buttonNextSurah.setVisibility(View.VISIBLE);
             } else {
                 buttonNextSurah.setVisibility(View.GONE);

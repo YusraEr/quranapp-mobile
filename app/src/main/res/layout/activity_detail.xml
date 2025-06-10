@@ -37,40 +37,41 @@
     <FrameLayout
         android:id="@+id/fragment_container_detail"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="?attr/actionBarSize" />
+        android:layout_height="match_parent"/>
 
-    <LinearLayout
-        android:id="@+id/navigation_controls_container"
-        android:layout_width="match_parent"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabPreviousSurah"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="bottom"
-        android:background="?attr/colorSurface"
-        android:elevation="4dp"
-        android:padding="8dp">
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="Previous Surah"
+        app:srcCompat="@drawable/ic_arrow_back"
+        app:backgroundTint="@color/colorPrimaryLight"
+        app:tint="@android:color/white" />
 
-        <Button
-            android:id="@+id/buttonPreviousSurah"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Sebelumnya"
-            android:layout_marginEnd="4dp"
-            android:visibility="gone"
-            tools:visibility="visible"/>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabNextSurah"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="Next Surah"
+        app:srcCompat="@drawable/ic_arrow_forward"
+        app:backgroundTint="@color/colorPrimaryLight"
+        app:tint="@android:color/white" />
 
-        <Button
-            android:id="@+id/buttonNextSurah"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Selanjutnya"
-            android:layout_marginStart="4dp"
-            android:visibility="gone"
-            tools:visibility="visible"/>
-    </LinearLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabGoToAyat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="Go to Ayat"
+        app:srcCompat="@drawable/ic_search"
+        app:backgroundTint="@color/colorSecondaryContainerDark"
+        app:tint="@android:color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
