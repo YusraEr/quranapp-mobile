@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.example.quranapp.data.remote.model.AyatSearchResult;
 import com.example.quranapp.data.remote.model.SuratNavInfo;
+import com.example.quranapp.data.remote.model.Tafsir;
 import com.google.gson.Gson;
 
 import com.example.quranapp.data.remote.model.Ayat; // Model Ayat POJO
@@ -27,11 +28,12 @@ public class QuranDbHelper extends SQLiteOpenHelper {
 
     // Informasi Database
     private static final String DATABASE_NAME = "quran_app.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     // Nama Tabel
     public static final String TABLE_SURAH = "surahs";
-    public static final String TABLE_AYAT = "ayats"; // Tabel baru untuk Ayat
+    public static final String TABLE_AYAT = "ayats";
+    public static final String TABLE_TAFSIR = "tafsirs";
 
     // Kolom Tabel Surah
     public static final String COLUMN_SURAH_NOMOR = "nomor";
@@ -55,6 +57,10 @@ public class QuranDbHelper extends SQLiteOpenHelper {
     public static final String COLUMN_AYAT_TEKS_LATIN = "teks_latin";
     public static final String COLUMN_AYAT_TEKS_INDONESIA = "teks_indonesia";
     public static final String COLUMN_AYAT_AUDIO_JSON = "audio_json"; // Menyimpan Map audio sebagai String JSON
+    public static final String COLUMN_TAFSIR_ID = "_id";
+    public static final String COLUMN_TAFSIR_SURAH_NOMOR = "surah_nomor";
+    public static final String COLUMN_TAFSIR_AYAT_NOMOR = "ayat_nomor";
+    public static final String COLUMN_TAFSIR_TEKS = "teks";
     private final Gson gson = new Gson();
 
     // Perintah SQL untuk Membuat Tabel Surah
@@ -85,6 +91,14 @@ public class QuranDbHelper extends SQLiteOpenHelper {
                     "FOREIGN KEY(" + COLUMN_AYAT_SURAH_NOMOR + ") REFERENCES " +
                     TABLE_SURAH + "(" + COLUMN_SURAH_NOMOR + ") ON DELETE CASCADE)";
 
+    private static final String SQL_CREATE_TABLE_TAFSIR =
+            "CREATE TABLE " + TABLE_TAFSIR + " (" +
+                    COLUMN_TAFSIR_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    COLUMN_TAFSIR_SURAH_NOMOR + " INTEGER," +
+                    COLUMN_TAFSIR_AYAT_NOMOR + " INTEGER," +
+                    COLUMN_TAFSIR_TEKS + " TEXT," +
+                    "FOREIGN KEY(" + COLUMN_TAFSIR_SURAH_NOMOR + ") REFERENCES " +
+                    TABLE_SURAH + "(" + COLUMN_SURAH_NOMOR + ") ON DELETE CASCADE)";
 
     public QuranDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -96,6 +110,7 @@ public class QuranDbHelper extends SQLiteOpenHelper {
             Log.d(TAG, "Creating database tables...");
             db.execSQL(SQL_CREATE_TABLE_SURAH);
             db.execSQL(SQL_CREATE_TABLE_AYAT);
+            db.execSQL(SQL_CREATE_TABLE_TAFSIR);
             Log.d(TAG, "Database tables created.");
         } catch (SQLException e) {
             Log.e(TAG, "Error creating tables: " + e.getMessage());
@@ -106,57 +121,21 @@ public class QuranDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.w(TAG, "Upgrading database from version " + oldVersion + " to " +
                 newVersion);
-        // Jika versi lama < 2, dan versi baru >= 2, buat tabel ayat
         if (oldVersion < 2 && newVersion >= 2) {
             try {
                 Log.d(TAG, "Creating table Ayat as part of upgrade from v" + oldVersion + " to v" + newVersion);
                 db.execSQL(SQL_CREATE_TABLE_AYAT);
+                db.execSQL(SQL_CREATE_TABLE_TAFSIR);
             } catch (SQLException e) {
                 Log.e(TAG, "Error creating table Ayat during upgrade: " + e.getMessage());
             }
         }
-        // Untuk migrasi yang lebih kompleks, Anda perlu logika yang lebih detail.
-        // Contoh sederhana: Hapus tabel lama jika ada perubahan drastis (tidak ideal untuk produksi)
-        // if (oldVersion < X) { db.execSQL("DROP TABLE IF EXISTS " + SOME_OLD_TABLE); }
     }
 
 
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.w(TAG, "Downgrading database from version " + oldVersion + " to " + newVersion);
-    }
-
-    // --- Metode CRUD untuk Surah (Sama seperti sebelumnya, tidak diubah di sini) ---
-    public long addSurah(Surah surah) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_SURAH_NOMOR, surah.getNomor());
-        values.put(COLUMN_SURAH_NAMA_ARAB, surah.getNama());
-        values.put(COLUMN_SURAH_NAMA_LATIN, surah.getNamaLatin());
-        values.put(COLUMN_SURAH_JUMLAH_AYAT, surah.getJumlahAyat());
-        values.put(COLUMN_SURAH_TEMPAT_TURUN, surah.getTempatTurun());
-        values.put(COLUMN_SURAH_ARTI, surah.getArti());
-        values.put(COLUMN_SURAH_DESKRIPSI, surah.getDeskripsi());
-
-        // Store next surah information if available
-        if (surah.getSuratSelanjutnya() != null) {
-            values.put(COLUMN_SURAH_NEXT_NUMBER, surah.getSuratSelanjutnya().getNomor());
-            values.put(COLUMN_SURAH_NEXT_NAME, surah.getSuratSelanjutnya().getNamaLatin());
-        }
-
-        // Store previous surah information if available
-        if (surah.getSuratSebelumnya() != null) {
-            values.put(COLUMN_SURAH_PREV_NUMBER, surah.getSuratSebelumnya().getNomor());
-            values.put(COLUMN_SURAH_PREV_NAME, surah.getSuratSebelumnya().getNamaLatin());
-        }
-
-        long id = -1;
-        try {
-            id = db.insertOrThrow(TABLE_SURAH, null, values);
-        } catch (SQLException e) {
-            Log.e(TAG, "Error inserting surah " + surah.getNamaLatin() + ": " + e.getMessage());
-        }
-        return id;
     }
 
     /**
@@ -239,6 +218,63 @@ public class QuranDbHelper extends SQLiteOpenHelper {
             if (cursor != null) cursor.close();
         }
         return surahList;
+    }
+
+    public void addOrReplaceTafsirForSurah(int surahNumber, List<Tafsir> tafsirList) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            // Hapus data tafsir lama untuk surah ini agar tidak duplikat
+            db.delete(TABLE_TAFSIR, COLUMN_TAFSIR_SURAH_NOMOR + " = ?", new String[]{String.valueOf(surahNumber)});
+
+            for (Tafsir tafsir : tafsirList) {
+                ContentValues values = new ContentValues();
+                values.put(COLUMN_TAFSIR_SURAH_NOMOR, surahNumber);
+                values.put(COLUMN_TAFSIR_AYAT_NOMOR, tafsir.getAyat());
+                values.put(COLUMN_TAFSIR_TEKS, tafsir.getTeks());
+                db.insert(TABLE_TAFSIR, null, values);
+            }
+            db.setTransactionSuccessful();
+            Log.d(TAG, "Successfully added or replaced " + tafsirList.size() + " tafsirs for surah " + surahNumber);
+        } catch (SQLException e) {
+            Log.e(TAG, "Error adding or replacing tafsirs for surah " + surahNumber, e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+    /**
+     * Mengambil semua data tafsir untuk satu surah dari database.
+     * @param surahNumber Nomor surah.
+     * @return List objek Tafsir.
+     */
+    public List<Tafsir> getTafsirBySurahNumber(int surahNumber) {
+        List<Tafsir> tafsirList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        String orderBy = COLUMN_TAFSIR_AYAT_NOMOR + " ASC";
+
+        try {
+            cursor = db.query(TABLE_TAFSIR, null,
+                    COLUMN_TAFSIR_SURAH_NOMOR + " = ?",
+                    new String[]{String.valueOf(surahNumber)},
+                    null, null, orderBy);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    Tafsir tafsir = new Tafsir();
+                    tafsir.setAyat(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_TAFSIR_AYAT_NOMOR)));
+                    tafsir.setTeks(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TAFSIR_TEKS)));
+                    tafsirList.add(tafsir);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting tafsir for surah " + surahNumber, e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return tafsirList;
     }
 
     private Surah cursorToSurah(Cursor cursor) {

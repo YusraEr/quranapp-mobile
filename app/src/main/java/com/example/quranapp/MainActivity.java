@@ -14,7 +14,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -59,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setupObservers();
+        updateThemeIcon();
         setupEventListeners();
     }
 
@@ -176,23 +176,16 @@ public class MainActivity extends AppCompatActivity {
         buttonChangeTheme.setOnClickListener(v -> {
             if (ThemeUtils.isDarkTheme(this)) {
                 ThemeUtils.setLightTheme(this);
-                // After switching to light theme, show the moon icon (to switch to dark)
                 buttonChangeTheme.setImageResource(R.drawable.ic_sun);
             } else {
                 ThemeUtils.setDarkTheme(this);
                 buttonChangeTheme.setImageResource(R.drawable.ic_moon);
-                // After switching to dark theme, show the sun icon (to switch to light)
             }
         });
 
-        // Set the initial icon based on the current theme state
         updateThemeIcon();
     }
 
-    /**
-     * Updates the theme toggle button icon based on the current theme state.
-     * Shows sun icon in dark mode and moon icon in light mode.
-     */
     private void updateThemeIcon() {
         if (ThemeUtils.isDarkTheme(this)) {
             // In dark theme, show the sun icon (to switch to light)
@@ -205,8 +198,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        super.onResume();
-        // Update icon when activity resumes in case theme changed elsewhere
+    super.onResume();
         updateThemeIcon();
     }
 }

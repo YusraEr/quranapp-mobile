@@ -72,8 +72,6 @@ public class DetailActivity extends AppCompatActivity {
         observeViewModel();
         setupNavigationButtonListeners();
 
-        // Memuat data ayat untuk surah ini jika belum dimuat oleh fragment
-        // atau jika activity dibuat ulang (ViewModel akan handle duplikasi load)
         ayatViewModel.initialLoadAyats(surahNumber);
     }
 
@@ -102,7 +100,6 @@ public class DetailActivity extends AppCompatActivity {
 
             Log.d("DetailActivityDebug", "Observer triggered: Surah " + surahDetail.getNamaLatin());
 
-            // Process next surah data
             if (surahDetail.getSuratSelanjutnya() != null) {
                 Log.d("DetailActivityDebug", "  -> Surat Selanjutnya DITERIMA: " + surahDetail.getSuratSelanjutnya().getNamaLatin());
                 currentSuratSelanjutnya = surahDetail.getSuratSelanjutnya();
@@ -122,7 +119,6 @@ public class DetailActivity extends AppCompatActivity {
 
             updateToolbarTitle(surahDetail.getNamaLatin(), surahDetail.getNama());
 
-            // Update previous surah button visibility and text
             if (currentSuratSebelumnya != null && currentSuratSebelumnya.getNomor() > 0 &&
                 currentSuratSebelumnya.getNamaLatin() != null && !currentSuratSebelumnya.getNamaLatin().isEmpty()) {
                 buttonPreviousSurah.setText(currentSuratSebelumnya.getNamaLatin());
@@ -165,7 +161,7 @@ public class DetailActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_SURAH_NUMBER, newSurahNumber);
         intent.putExtra(EXTRA_SURAH_NAME_LATIN, newSurahNameLatin);
         startActivity(intent);
-        finish(); // Tutup activity saat ini untuk menghindari tumpukan DetailActivity
+        finish();
     }
 
     private void loadAyatListFragment() {

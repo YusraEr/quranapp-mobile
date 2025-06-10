@@ -112,6 +112,7 @@
             android:padding="10dp"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
+            android:visibility="gone"
             tools:text="Tafsir: Kalimat ini merupakan pembuka dari setiap surah dalam Al-Quran kecuali At-Taubah. Maknanya adalah memulai segala sesuatu dengan menyebut nama Allah yang memiliki sifat Maha Pengasih kepada semua makhluk di dunia dan Maha Penyayang khusus kepada orang-orang beriman di akhirat." />
 
     </LinearLayout>

@@ -52,7 +52,7 @@ public class AyatListFragment extends Fragment {
 
 
     public AyatListFragment() {
-        // Diperlukan konstruktor kosong
+
     }
 
     public static AyatListFragment newInstance(int surahNumber, String surahNameLatin) {

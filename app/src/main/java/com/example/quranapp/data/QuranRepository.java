@@ -18,6 +18,7 @@ import com.example.quranapp.data.remote.model.AyatResponse;
 import com.example.quranapp.data.remote.model.AyatSearchResult;
 import com.example.quranapp.data.remote.model.Surah;
 import com.example.quranapp.data.remote.model.SurahResponse;
+import com.example.quranapp.data.remote.model.Tafsir;
 import com.example.quranapp.data.remote.model.TafsirResponse;
 import com.example.quranapp.utils.NetworkUtils;
 import com.example.quranapp.utils.SettingsUtils;
@@ -114,7 +115,6 @@ public class QuranRepository {
             }
         });
     }
-    // --- LiveData Getters (tidak berubah) ---
     public LiveData<List<Surah>> getAllSurahsLiveData() { return allSurahsLiveData; }
     public LiveData<Boolean> getIsLoadingSurah() { return isLoadingSurah; }
     public LiveData<String> getErrorMessageSurah() { return errorMessageSurah; }
@@ -127,7 +127,6 @@ public class QuranRepository {
     public LiveData<String> getErrorMessageTafsir() { return errorMessageTafsir; }
 
 
-    // --- Operasi Surah (tidak berubah signifikan, hanya memastikan konsistensi) ---
     public void loadAllSurahs(boolean forceRefresh) {
         isLoadingSurah.postValue(true);
         errorMessageSurah.postValue(null);
@@ -209,7 +208,7 @@ public class QuranRepository {
             }
             @Override
             public void onFailure(Call<SurahResponse> call, Throwable t) {
-                timeoutHandler.removeCallbacks(timeoutRunnable); // Batalkan timeout karena sudah gagal
+                timeoutHandler.removeCallbacks(timeoutRunnable);
 
                 mainThreadHandler.post(() -> {
                     errorMessageSurah.setValue("Kesalahan jaringan: " + t.getMessage());
@@ -408,11 +407,23 @@ public class QuranRepository {
     public void loadTafsirBySurahNumber(int nomorSurah) {
         isLoadingTafsir.postValue(true);
         errorMessageTafsir.postValue(null);
-
+        executorService.execute(() -> {
+            List<Tafsir> tafsirFromDb = dbHelper.getTafsirBySurahNumber(nomorSurah);
+            if (tafsirFromDb != null && !tafsirFromDb.isEmpty()) {
+                Log.d(TAG, "Tafsir for surah " + nomorSurah + " loaded from DB");
+                TafsirResponse.TafsirData tafsirData = new TafsirResponse.TafsirData();
+                tafsirData.setTafsir(tafsirFromDb);
+                tafsirLiveData.postValue(tafsirData);
+                isLoadingTafsir.postValue(false);
+            } else {
+                fetchTafsirFromApi(nomorSurah);
+            }
+        });
+    }
+    private void fetchTafsirFromApi(int nomorSurah) {
         if (!NetworkUtils.isNetworkAvailable(application)) {
-            errorMessageTafsir.postValue("Tidak ada koneksi internet untuk mengambil data tafsir.");
+            errorMessageTafsir.postValue("Tidak ada koneksi internet untuk memuat tafsir.");
             isLoadingTafsir.postValue(false);
-            // Di sini Anda bisa menambahkan logika untuk memuat tafsir dari DB jika disimpan
             return;
         }
 
@@ -420,8 +431,15 @@ public class QuranRepository {
             @Override
             public void onResponse(Call<TafsirResponse> call, Response<TafsirResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    tafsirLiveData.postValue(response.body().getData());
-                    // Di sini Anda bisa menyimpan tafsir ke DB jika diperlukan
+                    TafsirResponse.TafsirData dataFromApi = response.body().getData();
+                    tafsirLiveData.postValue(dataFromApi);
+
+                    // SIMPAN HASIL DARI API KE DATABASE LOKAL
+                    if (dataFromApi.getTafsir() != null && !dataFromApi.getTafsir().isEmpty()) {
+                        executorService.execute(() -> {
+                            dbHelper.addOrReplaceTafsirForSurah(nomorSurah, dataFromApi.getTafsir());
+                        });
+                    }
                 } else {
                     errorMessageTafsir.postValue("Gagal mengambil data tafsir. Kode: " + response.code());
                 }
