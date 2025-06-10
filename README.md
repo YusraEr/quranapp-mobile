@@ -25,21 +25,20 @@ Aplikasi Al-Quran untuk platform Android yang dikembangkan menggunakan Java. Apl
 
 ## Screenshot
 
-![image 1](documentation/lightmode/image%20(1).jpg)
-![image 2](documentation/lightmode/image%20(2).jpg)
-![image 3](documentation/lightmode/image%20(3).jpg)
-![image 4](documentation/lightmode/image%20(4).jpg)
-![image 5](documentation/lightmode/image%20(5).jpg)
-![image 6](documentation/lightmode/image%20(6).jpg)
-![image 7](documentation/lightmode/image%20(7).jpg)
+<img src="documentation/lightmode/image%20(1).jpg" alt="image 1 lightmode" width="300"/>
+<img src="documentation/lightmode/image%20(2).jpg" alt="image 2 lightmode" width="300"/>
+<img src="documentation/lightmode/image%20(3).jpg" alt="image 3 lightmode" width="300"/>
+<img src="documentation/lightmode/image%20(4).jpg" alt="image 4 lightmode" width="300"/>
+<img src="documentation/lightmode/image%20(5).jpg" alt="image 5 lightmode" width="300"/>
+<img src="documentation/lightmode/image%20(6).jpg" alt="image 6 lightmode" width="300"/>
+<img src="documentation/lightmode/image%20(7).jpg" alt="image 7 lightmode" width="300"/>_
 
-![image 1 darkmode](documentation/darkmode/image%20(1).jpg)
-![image 2 darkmode](documentation/darkmode/image%20(2).jpg)
-![image 3 darkmode](documentation/darkmode/image%20(3).jpg)
-![image 4 darkmode](documentation/darkmode/image%20(4).jpg)
-![image 5 darkmode](documentation/darkmode/image%20(5).jpg)
-![image 6 darkmode](documentation/darkmode/image%20(6).jpg)
-
+<img src="documentation/darkmode/image%20(1).jpg" alt="image 1 darkmode" width="300"/>
+<img src="documentation/darkmode/image%20(2).jpg" alt="image 2 darkmode" width="300"/>
+<img src="documentation/darkmode/image%20(3).jpg" alt="image 3 darkmode" width="300"/>
+<img src="documentation/darkmode/image%20(4).jpg" alt="image 4 darkmode" width="300"/>
+<img src="documentation/darkmode/image%20(5).jpg" alt="image 5 darkmode" width="300"/>
+<img src="documentation/darkmode/image%20(6).jpg" alt="image 6 darkmode" width="300"/>
 ## Teknologi
 
 ### Bahasa Pemrograman
